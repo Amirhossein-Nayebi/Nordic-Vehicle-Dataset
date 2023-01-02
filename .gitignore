@@ -1,0 +1,11 @@
+Extract Frames/Results/
+TestYOLOV5/runs/
+TestYOLOV5/yolov5l6.pt
+TestYOLOV5/yolov5m6.pt
+TestYOLOV5/yolov5n.pt
+TestYOLOV5/yolov5n6.pt
+TestYOLOV5/yolov5s.pt
+TestYOLOV5/yolov5s6.pt
+TestYOLOV5/yolov5x.pt
+TestYOLOV5/yolov5x6.pt
+Videos/
