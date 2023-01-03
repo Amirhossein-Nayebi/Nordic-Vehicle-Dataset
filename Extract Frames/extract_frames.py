@@ -4,17 +4,21 @@ import os
 
 
 def GetFrameIndex(frameStr: str) -> int:
-    try:
-        frameIndex = int(frameStr)
-    except Exception as e:
-        sys.exit(f"Invalid frame!\r\n{e.args[0]}")
-    else:
-        return frameIndex
+    splits = frameStr.split(':')
+    factor = 1
+    frameIndex = 0
+    for i in range(len(splits) - 1, -1, -1):
+        try:
+            frameIndex = frameIndex + factor * int(splits[i])
+        except Exception as e:
+            sys.exit(f"Invalid frame!\r\n{e.args[0]}")
+        factor = factor * 60
+    return frameIndex
 
 
 if len(sys.argv) < 5:
     sys.exit(
-        "Usage:\r\npython extract_frames [video file] [start frame (s)] [end frame (s)] [output folder] [-i]\r\nUse '-i' to specify frame indexes instead of frame times in seconds."
+        "Usage:\r\npython extract_frames [video file] [start frame] [end frame] [output folder] [-i]\r\nUse '-i' to specify frame indexes instead of frame times in seconds."
     )
 
 videoFile = sys.argv[1]
@@ -26,17 +30,26 @@ endFrame = GetFrameIndex(sys.argv[3])
 if endFrame < startFrame:
     sys.exit("End frame should be greater than start frame!")
 
-if not os.path.isdir(sys.argv[4]):
+outDir = os.path.join(
+    sys.argv[4], videoFile,
+    sys.argv[2].replace(":", "_") + "-" + sys.argv[3].replace(":", "_"))
+
+if not os.path.isdir(outDir):
     try:
-        os.makedirs(sys.argv[4])
+        os.makedirs(outDir)
     except Exception as e:
-        sys.exit(f"Failed to create output directory!\r\n{e.args[0]}")
-outDir = sys.argv[4]
+        sys.exit(
+            f"Failed to create output directory '{outDir}'!\r\n{e.args[0]}")
+
+if not os.path.isdir(outDir):
+    sys.exit(f"Failed to create output directory '{outDir}'!")
 
 useIndex = False
 if len(sys.argv) == 6:
     if sys.argv[5].lower().strip() == "-i":
         useIndex = True
+    else:
+        print(f"Unknown command line argument: '{sys.argv[5]}'")
 
 vidcap = cv2.VideoCapture(videoFile)
 
@@ -56,7 +69,7 @@ frameIndex = startFrame
 while success:
     print("Writing frame", frameIndex, "...")
     frameIndexStr = format(frameIndex, f'0{digitsCount}d')
-    frameFileName = os.path.join(outDir, f"frame{frameIndexStr}.jpg")
+    frameFileName = os.path.join(outDir, f"frame{frameIndexStr}.png")
     cv2.imwrite(frameFileName, image)
     success, image = vidcap.read()
     frameIndex += 1
