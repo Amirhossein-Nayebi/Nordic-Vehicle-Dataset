@@ -31,7 +31,8 @@ if endFrame < startFrame:
     sys.exit("End frame should be greater than start frame!")
 
 outDir = os.path.join(
-    sys.argv[4], videoFile,
+    os.path.dirname(os.path.realpath(__file__)),
+    sys.argv[4], os.path.basename(videoFile),
     sys.argv[2].replace(":", "_") + "-" + sys.argv[3].replace(":", "_"))
 
 if not os.path.isdir(outDir):
