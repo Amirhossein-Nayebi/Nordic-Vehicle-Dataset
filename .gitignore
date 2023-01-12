@@ -1,4 +1,4 @@
-Extract Frames/Results/
+ExtractFrames/Results/
 TestYOLOV5/runs/
 TestYOLOV5/yolov5l6.pt
 TestYOLOV5/yolov5m6.pt
@@ -12,3 +12,14 @@ Videos/
 test/
 goturn.caffemodel
 goturn.prototxt
+/__pycache__/
+*/__pycache__/*
+runs/
+yolov8l.pt
+yolov8m.pt
+yolov8n.pt
+yolov8s.pt
+yolov8x.pt
+cli.log
+bus.jpg
+tmp

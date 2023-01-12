@@ -12,11 +12,10 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "Videos/2022-12-02_Asjo_02.MP4",
-                "0",
-                "0",
-                "Results",
-                "-i"
+                "-fVideos/2022-12-02_Asjo_02.MP4",
+                "-s 0:0",
+                "-e 0:1",
+                "-o test",
             ]
         }
     ]
