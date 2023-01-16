@@ -6,7 +6,7 @@ Open a terminal and run:
     wsl --update 
     wsl --install -d ubuntu-18.04
 
-After installing Ubuntu 18.04 and creating a user, you need to install C++ version of OpenCV 3.2 library:
+After installing Ubuntu 18.04 and creating a user, you need to install the C++ version of OpenCV 3.2 library:
 
     sudo apt-get update
     sudo apt-get install libopencv-dev
