@@ -10,8 +10,6 @@ TestYOLOV5/yolov5x.pt
 TestYOLOV5/yolov5x6.pt
 Videos/
 test/
-goturn.caffemodel
-goturn.prototxt
 /__pycache__/
 */__pycache__/*
 runs/
