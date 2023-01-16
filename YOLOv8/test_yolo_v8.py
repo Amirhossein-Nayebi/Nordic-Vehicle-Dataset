@@ -9,7 +9,7 @@ import cv2
 from pathlib import Path
 import re
 from ExtractFrames import extract_frames
-import utility
+import Util.utility as util
 
 dir_path = Path(__file__).parent.resolve()
 
@@ -33,13 +33,13 @@ FrameSlots = [
     # "03:49 - 03:59",
     # "04:06 - 04:16",
     # "04:25 - 04:31",
-    "04:32 - 04:34",
-    "06:32 - 06:47",
-    "07:17 - 07:29",
-    "07:46 - 08:01",
-    "08:55 - 08:57",
-    "09:22 - 09:30",
-    "10:30 - 10:32",
+    # "04:32 - 04:34",
+    # "06:32 - 06:47",
+    # "07:17 - 07:29",
+    # "07:46 - 08:01",
+    # "08:55 - 08:57",
+    # "09:22 - 09:30",
+    # "10:30 - 10:32",
     "10:36 - 10:46",
 ]
 
@@ -59,34 +59,31 @@ for frameSlot in FrameSlots:
         for frame in frames:
             # frame = "./bus.jpg"
             image = cv2.imread(frame)
-            cv2.imshow("Result", image)
-            if cv2.waitKey(1) == ord('q'):
-                sys.exit()
+            displayDelay = 1
 
-            print(frame, m)
+            print("Processing", frame, "with", m)
             results = model(frame)  # predict on an image
             # print(results)
 
             if len(results[0]) > 0:
+                # displayDelay = 2000
                 for res in results[0]:
                     classLabel = int(res[5].item())
-                    className = utility.GetCOCOClassName(classLabel)
+                    className = util.GetCOCOClassName(classLabel)
                     conf = int(round(res[4].item() * 100))
                     box = res[:4].tolist()
-                    utility.DrawBoundingBoxWithLabel(
+                    util.DrawBoundingBoxWithLabel(
                         image,
                         box, (0, 255, 0),
                         thickness=2,
                         label=f"{className} {conf}%",
                         txtColor=(0, 0, 0))
-                frameName = os.path.basename(frame)
-                resImgFileName = os.path.join(resultFolder, videoFileName,
-                                              frameSlot, m,
-                                              frameName).replace(':', '_')
-                resImgDir = os.path.dirname(resImgFileName)
-                if not os.path.isdir(resImgDir):
-                    os.makedirs(resImgDir)
-                saveRes = cv2.imwrite(resImgFileName, image)
-                cv2.imshow("Result", image)
-                if cv2.waitKey(2000) == ord('q'):
-                    sys.exit()
+
+            util.DisplayImage("Result", image, displayDelay, 'q')
+
+            # Dump the result image
+            frameName = os.path.basename(frame)
+            resImgFileName = os.path.join(resultFolder, videoFileName,
+                                          frameSlot, m,
+                                          frameName).replace(':', '_')
+            util.SaveImage(resImgFileName, image)

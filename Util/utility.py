@@ -3,6 +3,25 @@ from typing import List
 from typing import Dict
 import cv2
 import numpy as np
+import sys
+import os
+
+# Displays image and wait for the specified delay (ms).
+# Terminates the execution if 'exitChar' is pressed during the delay. 
+def DisplayImage(title: str, image: np.ndarray, delay: int,
+                 exitChar: str) -> None:
+    cv2.imshow(title, image)
+    if cv2.waitKey(delay) == ord(exitChar):
+        sys.exit()
+
+# Saves image with specified file path. 
+# It creates path structure if it does not exist.
+def SaveImage(filePath: str, image: np.ndarray) -> bool:
+    dirPath = os.path.dirname(filePath)
+    if not os.path.isdir(dirPath):
+        os.makedirs(dirPath)
+    saveRes = cv2.imwrite(filePath, image)
+    return saveRes
 
 
 def DrawBoundingBoxWithLabel(
