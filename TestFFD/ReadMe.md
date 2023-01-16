@@ -3,12 +3,12 @@ FFD is a Linux executable. To run it on Windows, one way is to use the Windows S
 
 Open a terminal and run:
 
-```wsl --update```\
-```wsl --install -d ubuntu-18.04```
+    wsl --update 
+    wsl --install -d ubuntu-18.04
 
 After installing Ubuntu 18.04 and creating a user, you need to install C++ version of OpenCV 3.2 library:
 
-```sudo apt-get update```\
-```sudo apt-get install libopencv-dev```
+    sudo apt-get update
+    sudo apt-get install libopencv-dev
 
 Now, you should be able to run the 'FFD' linux executable on Ubuntu-18.04 distribution of WSL. There is a ```test.py``` python script that automate the process of executing the file with the required parameters and retrieving the results.
