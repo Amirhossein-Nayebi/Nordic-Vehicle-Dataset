@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Extract Frames",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -16,6 +16,17 @@
                 "-s 0:0",
                 "-e 0:1",
                 "-o test",
+            ]
+        },
+        {
+            "name": "YOLOv5 Detect",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-iExtractFrames/Results/2022-12-02_Asjo_01.MP4/10_30-10_32/frame15794.png",
             ]
         }
     ]
