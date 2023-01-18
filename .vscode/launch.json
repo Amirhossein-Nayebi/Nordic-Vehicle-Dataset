@@ -19,7 +19,7 @@
             ]
         },
         {
-            "name": "YOLOv5 Detect",
+            "name": "YOLO Detect",
             "type": "python",
             "request": "launch",
             "program": "${file}",

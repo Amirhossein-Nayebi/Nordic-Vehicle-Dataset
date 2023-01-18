@@ -2,26 +2,33 @@ import argparse
 import sys
 from typing import Any
 import torch
+import numpy as np
+import cv2
 
+model = None
+m_name = ""
 
-def Detect(img_file: str, model_name: str) -> Any:
-    model = torch.hub.load('ultralytics/yolov5', model_name)
-    results = model(img_file)
+def Detect(image:np.ndarray, model_name: str) -> Any:
+    global model, m_name
+    if m_name != model_name:
+        model = torch.hub.load('ultralytics/yolov5', model_name.lower())
+        m_name = model_name
 
+    results = model(image)
     return results
 
 
 models_names = [
-    "YOLOv5n",
-    "YOLOv5s",
-    "YOLOv5m",
-    "YOLOv5l",
-    "YOLOv5x",
-    "YOLOv5n6",
-    "YOLOv5s6",
-    "YOLOv5m6",
-    "YOLOv5l6",
-    "YOLOv5x6",
+    "yolov5n",
+    "yolov5s",
+    "yolov5m",
+    "yolov5l",
+    "yolov5x",
+    "yolov5n6",
+    "yolov5s6",
+    "yolov5m6",
+    "yolov5l6",
+    "yolov5x6",
 ]
 
 if __name__ == "__main__":
@@ -40,13 +47,14 @@ if __name__ == "__main__":
     parser.add_argument("-o",
                         "--output_directory",
                         help="Output directory",
-                        default='.')
+                        default='Results')
     try:
         args = parser.parse_args()
     except Exception as e:
         sys.exit("Failed to parse command line arguments!\r\n" + e.args[0])
 
-    results = Detect(args.input_image, args.model_name)
+    image = cv2.imread(args.input_image)
+    results = Detect(image, args.model_name)
     results.save(save_dir=args.output_directory)
     results.print()
     results.show()

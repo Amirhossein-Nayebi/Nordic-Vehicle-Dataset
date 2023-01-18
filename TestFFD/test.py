@@ -9,7 +9,7 @@ file_dir = os.path.dirname(__file__)
 ffd_dir = os.path.join(file_dir, '..', 'FFD/')
 image_file = os.path.join(
     file_dir,
-    "../ExtractFrames/Results/2022-12-02_Asjo_01.MP4/2_2-2_9/frame3111.png")
+    "../ExtractFrames/Results/2022-12-02_Asjo_01.MP4/10_36-10_46/Frame15913.png")
 out_dir = file_dir
 
 image = cv2.imread(image_file)
@@ -18,11 +18,11 @@ wsl_image_file = "/mnt/" + image_file.replace(':', '').replace('\\', '/')
 wsl_ffd_dir = "/mnt/" + ffd_dir.replace(':', '').replace('\\', '/')
 wsl_out_dir = "/mnt/" + out_dir.replace(':', '').replace('\\', '/')
 
-max_keypoints = 10000
+max_keypoints = 50
 num_level = 3
 contrast_threshold = 0.05
 curvature_ratio = 10.
-Time_cost = False
+Time_cost = True
 
 start = time.perf_counter()
 result = subprocess.run([

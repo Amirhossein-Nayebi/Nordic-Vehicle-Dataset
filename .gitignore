@@ -9,4 +9,6 @@ runs/
 cli.log
 bus.jpg
 tmp
+tmp.png
 *.jpg
+/Results*/
