@@ -1,10 +1,11 @@
-from typing import Any
-from typing import List
-from typing import Dict
+from typing import Any, Tuple
+from typing import List, Dict
 import cv2
 import numpy as np
 import sys
 import os
+import xml.etree.ElementTree as et
+import math
 
 
 class Colors:
@@ -117,18 +118,78 @@ def GetCOCOClassName(classID: int) -> str:
         return f"ID {classID} not found!"
 
 
-def GetBoundingBoxFromPoints(points: List[np.array]) -> List[float]:
-    minX = points[0][0]
-    minY = points[0][1]
-    maxX = points[0][0]
-    maxY = points[0][1]
-    for p in points:
-        if p[0] < minX:
-            minX = p[0]
-        if p[0] > maxX:
-            maxX = p[0]
-        if p[1] < minY:
-            minY = p[1]
-        if p[1] > maxY:
-            maxY = p[1]
-    return [minX, minY, maxX, maxY]
+class AnnotationBox:
+
+    def __init__(self, box) -> None:
+        self.tlPoint = np.array(
+            [float(box.attrib["xtl"]),
+             float(box.attrib["ytl"])])
+        self.brPoint = np.array(
+            [float(box.attrib["xbr"]),
+             float(box.attrib["ybr"])])
+        self.trPoint = np.array([self.brPoint[0], self.tlPoint[1]])
+        self.blPoint = np.array([self.tlPoint[0], self.brPoint[1]])
+
+        self.c_Point = (self.tlPoint + self.brPoint) / 2
+
+        if "rotation" in box.attrib:
+            self.rotation = float(box.attrib["rotation"])
+        else:
+            self.rotation = 0
+
+        rot_rad = self.rotation * math.pi / 180
+        cs = math.cos(rot_rad)
+        sn = math.sin(rot_rad)
+        rot_mat = np.array([[cs, -sn], [sn, cs]])
+
+        self.p1 = rot_mat @ (self.tlPoint - self.c_Point) + self.c_Point
+        self.p2 = rot_mat @ (self.trPoint - self.c_Point) + self.c_Point
+        self.p3 = rot_mat @ (self.brPoint - self.c_Point) + self.c_Point
+        self.p4 = rot_mat @ (self.blPoint - self.c_Point) + self.c_Point
+
+        self.points = np.array([self.p1, self.p2, self.p3, self.p4], np.int32)
+        self.points = self.points.reshape((-1, 1, 2))
+
+    def GetStraightBoundingBox(self) -> List[float]:
+        points = [self.p1, self.p2, self.p3, self.p4]
+        minX = points[0][0]
+        minY = points[0][1]
+        maxX = points[0][0]
+        maxY = points[0][1]
+        for p in points:
+            if p[0] < minX:
+                minX = p[0]
+            if p[0] > maxX:
+                maxX = p[0]
+            if p[1] < minY:
+                minY = p[1]
+            if p[1] > maxY:
+                maxY = p[1]
+        return [minX, minY, maxX, maxY]
+
+    def GetYOLOBoundingBox(self, width, height) -> List[float]:
+        straight_bbox = self.GetStraightBoundingBox()
+        yolo_bbox = [(straight_bbox[0] + straight_bbox[2]) / 2 / width,
+                         (straight_bbox[1] + straight_bbox[3]) / 2 / height,
+                         (straight_bbox[2] - straight_bbox[0]) / width,
+                         (straight_bbox[3] - straight_bbox[1]) / height]
+        return yolo_bbox
+
+    def GetBoxesFromXMLAnnotationFile(
+            annotationFile: str) -> Tuple[Dict[int, List[Any]], int, int]:
+        tree = et.parse(annotationFile)
+        root = tree.getroot()
+
+        width = int(root.find("meta/original_size/width").text)
+        height = int(root.find("meta/original_size/height").text)
+        allBoxes = root.findall("track/box")
+
+        boxesByFrames = {}
+        for box in allBoxes:
+            if box.attrib["outside"] == "0":
+                frameNumber = int(box.attrib["frame"])
+                if frameNumber in boxesByFrames:
+                    boxesByFrames[frameNumber].append(AnnotationBox(box))
+                else:
+                    boxesByFrames[frameNumber] = [AnnotationBox(box)]
+        return boxesByFrames, width, height

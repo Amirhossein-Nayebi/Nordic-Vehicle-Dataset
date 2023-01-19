@@ -2,61 +2,57 @@
 Given a video file and CVAT annotation xml file, this script generates
 data for training YOLO networks.
 '''
-import math
-import xml.etree.ElementTree as et
-import numpy as np
+
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+import Util.utility as util
 import cv2
 
 videoFile = "./Videos/2022-12-04 Bjenberg 02.MP4"
 annotationFile = "./Annotations/CVAT video annotation for 2022-12-04 Bjenberg 02 frame 0 - 2334/annotations.xml"
 outFolder = "Result"
 
+if not os.path.isdir(outFolder):
+    os.makedirs(outFolder)
+
+if not os.path.isdir(outFolder):
+    sys.exit("Failed to create output folder!")
+
+videoFileBaseName = os.path.basename(videoFile)
+
+boxesPerFrame, width, height = util.AnnotationBox.GetBoxesFromXMLAnnotationFile(
+    annotationFile)
+
 vidcap = cv2.VideoCapture(videoFile)
 
-tree = et.parse(annotationFile)
-root = tree.getroot()
+counter = 0
+n = len(boxesPerFrame)
 
-width = int(root.find("meta/original_size/width").text)
-height = int(root.find("meta/original_size/height").text)
+for frameNum, boxes in boxesPerFrame.items():
+    # Set the position of the video file reader to the desired frame number
+    vidcap.set(cv2.CAP_PROP_POS_FRAMES, frameNum)
+    success, image = vidcap.read()
 
-boxes = root.findall("track/box")
-for box in boxes:
-    if box.attrib["outside"] == "0":
-        frameNumber = int(box.attrib["frame"])
-        tlPoint = np.array(
-            [float(box.attrib["xtl"]),
-             float(box.attrib["ytl"])])
-        brPoint = np.array(
-            [float(box.attrib["xbr"]),
-             float(box.attrib["ybr"])])
-        trPoint = np.array([brPoint[0], tlPoint[1]])
-        blPoint = np.array([tlPoint[0], brPoint[1]])
+    frameNumberStr = format(frameNum, f'0{6}d')
+    frameFilePath = os.path.join(
+        outFolder, videoFileBaseName + f"-frame{frameNumberStr}.png")
 
-        c_Point = (tlPoint + brPoint) / 2
+    cv2.imwrite(frameFilePath, image)
 
-        rotation = float(box.attrib["rotation"])
-        rot_rad = rotation * math.pi / 180
-        cs = math.cos(rot_rad)
-        sn = math.sin(rot_rad)
-        rot_mat = np.array([[cs, -sn], [sn, cs]])
+    if len(boxes) > 0:
+        lines = []
+        for box in boxes:
+            yolo_bbox = box.GetYOLOBoundingBox(width, height)
+            yolo_bbox_str = "0"
+            for elem in yolo_bbox:
+                yolo_bbox_str += f" {elem:.3f}"
+            lines.append(yolo_bbox_str + "\n")
 
-        p1 = rot_mat @ (tlPoint - c_Point) + c_Point
-        p2 = rot_mat @ (trPoint - c_Point) + c_Point
-        p3 = rot_mat @ (brPoint - c_Point) + c_Point
-        p4 = rot_mat @ (blPoint - c_Point) + c_Point
-
-        # Set the position of the video file reader to the desired frame number
-        vidcap.set(cv2.CAP_PROP_POS_FRAMES, frameNumber)
-        success, image = vidcap.read()
-
-
-        points = np.array([p1, p2, p3, p4], np.int32)
-        points = points.reshape((-1, 1, 2))
-        # print(points)
-
-        cv2.polylines(image, [points], True, (0, 255, 0), 1)
-        # cv2.drawContours(image,[[[tuple(p1.astype(int)), tuple(p2.astype(int)), tuple(p3.astype(int)), tuple(p4.astype(int))]]], 0, (0, 255, 0), 2)
-
-        cv2.imshow("test", image)
-        if cv2.waitKey(-1) == ord('q'):
-            break
+        labelFilePath = os.path.splitext(frameFilePath)[0] + ".txt"
+        with open(labelFilePath, 'w') as file:
+            file.writelines(lines)
+    counter += 1
+    print(int(counter * 100 / n), "%")
