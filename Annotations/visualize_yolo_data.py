@@ -6,6 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import Util.utility as util
 import glob
 import cv2
+from tqdm import tqdm
 
 inFolder = "Result"
 
@@ -13,7 +14,7 @@ search_pattern = '*.png'
 
 file_list = glob.glob(os.path.join(inFolder, search_pattern))
 
-for img_file_path in file_list:
+for img_file_path in tqdm(file_list):
     image = cv2.imread(img_file_path)
     img_height, img_width = image.shape[:2]
     label_file_path = os.path.splitext(img_file_path)[0] + ".txt"
