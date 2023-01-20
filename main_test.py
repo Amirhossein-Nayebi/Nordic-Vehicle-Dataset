@@ -26,16 +26,11 @@ for frameNumber, boxes in boxesByFrames.items():
 
     # Draw ground truth bounding boxes
     for box in boxes:
-        cv2.polylines(image, [box.points], True, ground_truth_color, 1)
-
-        straight_bbox = box.GetStraightBoundingBox()
-
-        utility.DrawBoundingBoxWithLabel(image,
-                                         straight_bbox,
-                                         ground_truth_color,
-                                         1,
-                                         label="Ground Truth",
-                                         txtColor=ground_truth_txt_color)
+        box.Draw(image,
+                 color=ground_truth_color,
+                 thickness=1,
+                 label="Ground Truth",
+                 txtColor=ground_truth_txt_color)
 
     yolo5Results = yolo5.Detect(image, yolo5Model)
     utility.DrawYOLOResults(image, yolo5Results.pred, yolo5Model + " ")

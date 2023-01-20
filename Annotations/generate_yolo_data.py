@@ -48,7 +48,7 @@ for frameNum, boxes in boxesPerFrame.items():
             yolo_bbox = box.GetYOLOBoundingBox(width, height)
             yolo_bbox_str = "0"
             for elem in yolo_bbox:
-                yolo_bbox_str += f" {elem:.3f}"
+                yolo_bbox_str += f" {elem:.5f}"
             lines.append(yolo_bbox_str + "\n")
 
         labelFilePath = os.path.splitext(frameFilePath)[0] + ".txt"

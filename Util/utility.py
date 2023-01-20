@@ -65,7 +65,6 @@ def DrawYOLOResults(image: np.ndarray, results, label_prefix=''):
                 txtColor=textColor)
 
 
-# To draw dashed lines in OpenCV, you can use the line() function and set the line type to be CV_AA + 4 or CV_AA + 8.
 def DrawBoundingBoxWithLabel(
     image: np.ndarray,
     box: List[float],
@@ -120,38 +119,59 @@ def GetCOCOClassName(classID: int) -> str:
 
 class AnnotationBox:
 
-    def __init__(self, box) -> None:
-        self.tlPoint = np.array(
-            [float(box.attrib["xtl"]),
-             float(box.attrib["ytl"])])
-        self.brPoint = np.array(
-            [float(box.attrib["xbr"]),
-             float(box.attrib["ybr"])])
-        self.trPoint = np.array([self.brPoint[0], self.tlPoint[1]])
-        self.blPoint = np.array([self.tlPoint[0], self.brPoint[1]])
+    def __init__(self, xtl: float, ytl: float, xbr: float, ybr: float,
+                 rotation: float) -> None:
+        '''Initializes an AnnotationBox with top-left and bottom-right points'''
+        self.__tlPoint = np.array([xtl, ytl])
+        self.__brPoint = np.array([xbr, ybr])
+        self.__rotation = rotation
+        self.UpdateInternalData()
 
-        self.c_Point = (self.tlPoint + self.brPoint) / 2
-
+    def CreateFromXMLElement(box: et.Element):
         if "rotation" in box.attrib:
-            self.rotation = float(box.attrib["rotation"])
+            rotation = float(box.attrib["rotation"])
         else:
-            self.rotation = 0
+            rotation = 0
 
-        rot_rad = self.rotation * math.pi / 180
+        return AnnotationBox(float(box.attrib["xtl"]),
+                             float(box.attrib["ytl"]),
+                             float(box.attrib["xbr"]),
+                             float(box.attrib["ybr"]), rotation)
+
+    def CreateFromNormalizedStraightBox(img_width, img_height, centerX,
+                                        centerY, box_width, box_height):
+        '''Creates an AnnotationBox with normalized box center and size data (YOLO format)'''
+        xtl = (centerX - box_width / 2) * img_width
+        ytl = (centerY - box_height / 2) * img_height
+        xbr = (centerX + box_width / 2) * img_width
+        ybr = (centerY + box_height / 2) * img_height
+        return AnnotationBox(xtl, ytl, xbr, ybr, 0)
+
+    def UpdateInternalData(self) -> None:
+        self.__trPoint = np.array([self.__brPoint[0], self.__tlPoint[1]])
+        self.__blPoint = np.array([self.__tlPoint[0], self.__brPoint[1]])
+        self.__c_Point = (self.__tlPoint + self.__brPoint) / 2
+
+        rot_rad = self.__rotation * math.pi / 180
         cs = math.cos(rot_rad)
         sn = math.sin(rot_rad)
         rot_mat = np.array([[cs, -sn], [sn, cs]])
 
-        self.p1 = rot_mat @ (self.tlPoint - self.c_Point) + self.c_Point
-        self.p2 = rot_mat @ (self.trPoint - self.c_Point) + self.c_Point
-        self.p3 = rot_mat @ (self.brPoint - self.c_Point) + self.c_Point
-        self.p4 = rot_mat @ (self.blPoint - self.c_Point) + self.c_Point
+        self.__p1 = rot_mat @ (self.__tlPoint -
+                               self.__c_Point) + self.__c_Point
+        self.__p2 = rot_mat @ (self.__trPoint -
+                               self.__c_Point) + self.__c_Point
+        self.__p3 = rot_mat @ (self.__brPoint -
+                               self.__c_Point) + self.__c_Point
+        self.__p4 = rot_mat @ (self.__blPoint -
+                               self.__c_Point) + self.__c_Point
 
-        self.points = np.array([self.p1, self.p2, self.p3, self.p4], np.int32)
-        self.points = self.points.reshape((-1, 1, 2))
+        self.__points = np.array([self.__p1, self.__p2, self.__p3, self.__p4],
+                                 np.int32)
+        self.__points = self.__points.reshape((-1, 1, 2))
 
     def GetStraightBoundingBox(self) -> List[float]:
-        points = [self.p1, self.p2, self.p3, self.p4]
+        points = [self.__p1, self.__p2, self.__p3, self.__p4]
         minX = points[0][0]
         minY = points[0][1]
         maxX = points[0][0]
@@ -170,9 +190,9 @@ class AnnotationBox:
     def GetYOLOBoundingBox(self, width, height) -> List[float]:
         straight_bbox = self.GetStraightBoundingBox()
         yolo_bbox = [(straight_bbox[0] + straight_bbox[2]) / 2 / width,
-                         (straight_bbox[1] + straight_bbox[3]) / 2 / height,
-                         (straight_bbox[2] - straight_bbox[0]) / width,
-                         (straight_bbox[3] - straight_bbox[1]) / height]
+                     (straight_bbox[1] + straight_bbox[3]) / 2 / height,
+                     (straight_bbox[2] - straight_bbox[0]) / width,
+                     (straight_bbox[3] - straight_bbox[1]) / height]
         return yolo_bbox
 
     def GetBoxesFromXMLAnnotationFile(
@@ -189,7 +209,32 @@ class AnnotationBox:
             if box.attrib["outside"] == "0":
                 frameNumber = int(box.attrib["frame"])
                 if frameNumber in boxesByFrames:
-                    boxesByFrames[frameNumber].append(AnnotationBox(box))
+                    boxesByFrames[frameNumber].append(
+                        __class__.CreateFromXMLElement(box))
                 else:
-                    boxesByFrames[frameNumber] = [AnnotationBox(box)]
+                    boxesByFrames[frameNumber] = [
+                        __class__.CreateFromXMLElement(box)
+                    ]
         return boxesByFrames, width, height
+
+    def Draw(self,
+             image: np.ndarray,
+             color: Any = (128, 128, 128),
+             thickness: int = 1,
+             lineType: int = cv2.LINE_AA,
+             label: str = '',
+             txtColor: Any = (255, 255, 255)) -> None:
+
+        cv2.polylines(image, [self.__points], True, color, thickness)
+
+        straight_bbox = self.GetStraightBoundingBox()
+
+        DrawBoundingBoxWithLabel(
+            image,
+            straight_bbox,
+            color,
+            1,
+            lineType,
+            label=label,
+            txtColor=txtColor,
+        )
