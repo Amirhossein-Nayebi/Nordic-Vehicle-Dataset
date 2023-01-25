@@ -11,9 +11,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import Util.utility as util
 import cv2
 
-videoFile = "./Videos/2022-12-04 Bjenberg 02.MP4"
-annotationFile = "./Annotations/CVAT video annotation for 2022-12-04 Bjenberg 02 frame 0 - 2334/annotations.xml"
-outFolder = "Result"
+videoFile = "./Videos/2022-12-02 Asjo 01_stabilized.mp4"
+annotationFile = "./Annotations/CVAT video annotation for 2022-12-02 Asjo 01 stabilized/annotations.xml"
+outFolder = "Result_test"
 
 if not os.path.isdir(outFolder):
     os.makedirs(outFolder)
@@ -27,6 +27,7 @@ boxesPerFrame, width, height = util.AnnotationBox.GetBoxesFromXMLAnnotationFile(
     annotationFile)
 
 vidcap = cv2.VideoCapture(videoFile)
+print(int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
 counter = 0
 n = len(boxesPerFrame)

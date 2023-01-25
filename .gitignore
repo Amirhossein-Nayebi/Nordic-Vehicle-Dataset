@@ -12,6 +12,8 @@ tmp
 tmp.png
 /Results*/
 /Result*/
+*/Result*
 Results*
 *.jpg
 *.avi
+/datasets
