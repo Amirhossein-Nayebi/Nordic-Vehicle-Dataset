@@ -95,3 +95,7 @@ thop>=0.1.1  # FLOPs computation
 
 # HUB -----------------------------------------
 GitPython>=3.1.24
+
+ultralytics
+scikit-learn
+clearml

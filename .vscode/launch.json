@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "--epochs", "1",
+                "--yolo_model", "yolov5n",
+                "--project","Test",
+            ]
+        },
+        {
             "name": "Extract Frames",
             "type": "python",
             "request": "launch",
