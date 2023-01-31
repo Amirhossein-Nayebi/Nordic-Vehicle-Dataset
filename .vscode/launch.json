@@ -12,9 +12,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--epochs", "1",
-                "--yolo_model", "yolov5n",
-                "--project","Test",
+                "--in_dir", "../datasets/SmartPlane/Videos",
+                "--out_dir", "../datasets/SmartPlane",
             ]
         },
         {

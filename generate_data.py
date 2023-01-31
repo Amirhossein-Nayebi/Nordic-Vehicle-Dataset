@@ -37,56 +37,59 @@ def main(opt):
     except Exception as e:
         sys.exit(f"Failed to create output directories!\r\n{e}")
 
-    for videoFileBaseName in tqdm(video_files):
-        video_file_path = os.path.join(in_dir, videoFileBaseName)
-        annotation_file_path = os.path.join(
-            in_dir,
-            os.path.splitext(video_file_path)[0] + '.xml')
-        if not os.path.isfile(annotation_file_path):
-            print(f"Annotation file '{annotation_file_path}' not found!")
-            continue
+    # for videoFileBaseName in tqdm(video_files):
+    #     video_file_path = os.path.join(in_dir, videoFileBaseName)
+    #     annotation_file_path = os.path.join(
+    #         in_dir,
+    #         os.path.splitext(video_file_path)[0] + '.xml')
+    #     if not os.path.isfile(annotation_file_path):
+    #         print(f"Annotation file '{annotation_file_path}' not found!")
+    #         continue
 
-        vidcap = cv2.VideoCapture(video_file_path)
-        frames_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        frame_num_len = len(str(frames_count))
+    #     vidcap = cv2.VideoCapture(video_file_path)
+    #     frames_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    #     frame_num_len = len(str(frames_count))
 
-        boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
-            annotation_file_path)
+    #     boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
+    #         annotation_file_path)
 
-        for frameNum, boxes in tqdm(boxesPerFrame.items()):
-            # Set the position of the video file reader to the desired frame number
-            vidcap.set(cv2.CAP_PROP_POS_FRAMES, frameNum)
-            success, image = vidcap.read()
-            if not success:
-                print(f"Failed to read frame {frameNum}!")
-                continue
+    #     for frameNum, boxes in tqdm(boxesPerFrame.items()):
+    #         # Set the position of the video file reader to the desired frame number
+    #         vidcap.set(cv2.CAP_PROP_POS_FRAMES, frameNum)
+    #         success, image = vidcap.read()
+    #         if not success:
+    #             print(f"Failed to read frame {frameNum}!")
+    #             continue
 
-            frameNumberStr = format(frameNum, f'0{frame_num_len}d')
-            frameFilePath = os.path.join(
-                imgs_dir, videoFileBaseName + f"-frame{frameNumberStr}.png")
-            if not cv2.imwrite(frameFilePath, image):
-                print(f"Failed to write image {frameFilePath}!")
-                continue
+    #         frameNumberStr = format(frameNum, f'0{frame_num_len}d')
+    #         frameFilePath = os.path.join(
+    #             imgs_dir, videoFileBaseName + f"-frame{frameNumberStr}.png")
+    #         if not cv2.imwrite(frameFilePath, image):
+    #             print(f"Failed to write image {frameFilePath}!")
+    #             continue
 
-            if len(boxes) > 0:
-                lines = []
-                for box in boxes:
-                    yolo_bbox = box.GetYOLOBoundingBox(width, height)
-                    yolo_bbox_str = "0"
-                    for elem in yolo_bbox:
-                        yolo_bbox_str += f" {elem:.5f}"
-                    lines.append(yolo_bbox_str + "\n")
+    #         if len(boxes) > 0:
+    #             lines = []
+    #             for box in boxes:
+    #                 yolo_bbox = box.GetYOLOBoundingBox(width, height)
+    #                 yolo_bbox_str = "0"
+    #                 for elem in yolo_bbox:
+    #                     yolo_bbox_str += f" {elem:.5f}"
+    #                 lines.append(yolo_bbox_str + "\n")
 
-                labelFilePath = os.path.join(
-                    lbs_dir,
-                    os.path.splitext(os.path.basename(frameFilePath))[0] +
-                    ".txt")
+    #             labelFilePath = os.path.join(
+    #                 lbs_dir,
+    #                 os.path.splitext(os.path.basename(frameFilePath))[0] +
+    #                 ".txt")
 
-                with open(labelFilePath, 'w') as file:
-                    file.writelines(lines)
+    #             with open(labelFilePath, 'w') as file:
+    #                 file.writelines(lines)
+    images = glob.glob(os.path.join(os.path.relpath(imgs_dir, '.'), "*.png"))
+    labels = glob.glob(os.path.join(os.path.relpath(lbs_dir, '.'), "*.txt"))
 
-    images = glob.glob(os.path.join(imgs_dir, "*.png"))
-    labels = glob.glob(os.path.join(lbs_dir, "*.txt"))
+    for i in range(len(images)):
+        images[i] = images[i].replace('\\', '/')
+        labels[i] = labels[i].replace('\\', '/')
 
     images_train, images_val_test, labels_train, labels_val_test = train_test_split(
         images, labels, train_size=opt.train_size)

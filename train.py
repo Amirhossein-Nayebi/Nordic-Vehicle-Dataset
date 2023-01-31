@@ -23,7 +23,7 @@ def main(opt):
         data="./smart_plane.yaml",
         epochs=opt.epochs,
         weights=opt.yolo_model + ".pt",
-        #    cache=True,
+        # cache=True,
         project=opt.project,
         name=opt.yolo_model if opt.name is None else opt.name)
 
