@@ -4,47 +4,41 @@ import os
 import sys
 
 sys.path.append("..")
-import yolov5.train as yolo_train
-
-yolov5_models = {
-    'yolov5n',
-    'yolov5s',
-    'yolov5m',
-    'yolov5l',
-    'yolov5x',
-}
+import yolov5.val as yolo_val
 
 
 def main(opt):
     # clearml.browser_login()
-    yolo_train.run(
+    yolo_val.run(
+        weights=opt.yolo_model,
+        project=opt.project,
+        name=os.path.basename(opt.yolo_model) if opt.name is None else opt.name,
+        task='test', # train, val, test, speed or study
+        verbose=True,
+        save_txt=False,  # save results to *.txt
+        save_hybrid=False,  # save label+prediction hybrid results to *.txt
+        save_conf=False,  # save confidences in --save-txt labels
+        save_json=False,  # save a COCO-JSON results file
         imgsz=1920,
+        single_cls=True,
         #    batch_size=16,
         data="./smart_plane.yaml",
-        epochs=opt.epochs,
-        weights=opt.yolo_model + ".pt",
-        # cache=True,
-        project=opt.project,
-        name=opt.yolo_model if opt.name is None else opt.name)
+        device='cpu',
+        half=False)
 
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
-        description='This python script fine tunes YOLO over new car images.')
-    parser.add_argument('--epochs',
-                        type=int,
-                        help='total training epochs',
-                        default=100)
+        description='This python script validates a trained YOLO network.')
     parser.add_argument('--yolo_model',
                         type=str,
-                        help='YOLO model to fine tune. Available models = ' +
-                        str(yolov5_models),
-                        default='yolov5s')
+                        help='YOLO model to validate.',
+                        required=True)
     parser.add_argument(
         '--project',
         type=str,
-        help="Project name. If omitted, is set to 'runs/train'.",
-        default='runs/train')
+        help="Project name. If omitted, is set to 'runs/val'.",
+        default='runs/val')
     parser.add_argument('--name',
                         type=str,
                         help='Task name. If omitted, yolo model name is used.',

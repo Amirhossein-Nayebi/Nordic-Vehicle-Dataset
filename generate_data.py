@@ -72,6 +72,8 @@ def main(opt):
                 lines = []
                 for box in boxes:
                     yolo_bbox = box.GetYOLOBoundingBox(width, height)
+                    if yolo_bbox is None:
+                        continue
                     yolo_bbox_str = "0"
                     for elem in yolo_bbox:
                         yolo_bbox_str += f" {elem:.5f}"
@@ -84,13 +86,13 @@ def main(opt):
 
                 with open(labelFilePath, 'w') as file:
                     file.writelines(lines)
-                    
+
     images = glob.glob(os.path.join(os.path.relpath(imgs_dir, '.'), "*.png"))
     labels = glob.glob(os.path.join(os.path.relpath(lbs_dir, '.'), "*.txt"))
 
     for i in range(len(images)):
-        images[i] = images[i].replace('\\', '/')
-        labels[i] = labels[i].replace('\\', '/')
+        images[i] = "./images/" + os.path.basename(images[i])
+        labels[i] = "./labels/" + os.path.basename(labels[i])
 
     images_train, images_val_test, labels_train, labels_val_test = train_test_split(
         images, labels, train_size=opt.train_size)

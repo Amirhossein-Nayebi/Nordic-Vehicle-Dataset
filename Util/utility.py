@@ -189,10 +189,26 @@ class AnnotationBox:
 
     def GetYOLOBoundingBox(self, width, height) -> List[float]:
         straight_bbox = self.GetStraightBoundingBox()
+
+        if straight_bbox[0] < 0: straight_bbox[0] = 0
+        if straight_bbox[1] < 0: straight_bbox[1] = 0
+        if straight_bbox[2] < 0: straight_bbox[2] = 0
+        if straight_bbox[3] < 0: straight_bbox[3] = 0
+
+        if straight_bbox[0] >= width: straight_bbox[0] = width - 1
+        if straight_bbox[2] >= width: straight_bbox[2] = width - 1
+        if straight_bbox[1] >= height: straight_bbox[1] = height - 1
+        if straight_bbox[3] >= height: straight_bbox[3] = height - 1
+
         yolo_bbox = [(straight_bbox[0] + straight_bbox[2]) / 2 / width,
                      (straight_bbox[1] + straight_bbox[3]) / 2 / height,
                      (straight_bbox[2] - straight_bbox[0]) / width,
                      (straight_bbox[3] - straight_bbox[1]) / height]
+
+        if yolo_bbox[0] < 0 or yolo_bbox[0] > 1 or yolo_bbox[
+                1] < 0 or yolo_bbox[1] > 1 or yolo_bbox[2] < 0 or yolo_bbox[
+                    2] > 1 or yolo_bbox[3] < 0 or yolo_bbox[3] > 1:
+            print("Warning - Invalid bounding box!")
         return yolo_bbox
 
     def GetBoxesFromXMLAnnotationFile(
