@@ -28,7 +28,7 @@ On Windows:
 On Ubuntu:
 
     python3 -m venv .venv
-    .venv/bin/activate
+    source .venv/bin/activate
 
 
 Note: ```.venv``` is the name of the virtual environment, you can change it to any other name of your choice.
