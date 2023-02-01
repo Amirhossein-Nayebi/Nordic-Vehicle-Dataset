@@ -101,8 +101,9 @@ def main(opt):
 
     if len(images) == 0:
         sys.exit(f"No image found in '{data_dir}/images'. \
-            If you have not extracted images from annotated videos yet, please rerun the script with \
-                --videos_dir option to generate images and labels directories."
+            \nMake sure each video has a corresponding .xml annotation file.\
+            \nIf you have not extracted images from annotated videos yet, please rerun the script with \
+                \n--videos_dir option to generate images and labels directories."
                  )
 
     for i in range(len(images)):

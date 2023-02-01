@@ -41,12 +41,12 @@ def parse_opt(known=False):
         description='This python script fine tunes YOLO over new car images.')
     parser.add_argument('--epochs',
                         type=int,
-                        help='total training epochs',
+                        help='total training epochs (default = 100)',
                         default=100)
     parser.add_argument('--yolo_model',
                         type=str,
                         help='YOLO model to fine tune. Available models = ' +
-                        str(yolov5_models),
+                        str(yolov5_models) + " (default = yolov5s)",
                         default='yolov5s')
     parser.add_argument(
         '--project',
