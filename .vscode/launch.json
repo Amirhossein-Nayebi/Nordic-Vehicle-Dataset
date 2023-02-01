@@ -47,7 +47,7 @@
             "justMyCode": true,
             "args":[
                 "--yolo_model", "./runs/yolov5s/weights/best.pt",
-                "--source", "../datasets/SmartPlane/images"
+                "--source", "../datasets/SmartPlane/Videos/2022-12-04 Bjenberg 02.MP4"
             ]
         },
     ]
