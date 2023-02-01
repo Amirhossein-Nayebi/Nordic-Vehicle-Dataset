@@ -16,15 +16,15 @@
             ]
         },
         {
-            "name": "Generate Data",
+            "name": "Prepare Data",
             "type": "python",
             "request": "launch",
-            "program": "generate_data.py",
+            "program": "prepare_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--in_dir", "../datasets/SmartPlane/Videos",
-                "--out_dir", "../datasets/SmartPlane",
+                "--videos_dir", "../datasets/SmartPlane/Videos",
+                "--data_dir", "../datasets/SmartPlane",
             ]
         },
         {
@@ -36,6 +36,18 @@
             "justMyCode": true,
             "args":[
                 "--epochs", "1",
+            ]
+        },
+        {
+            "name": "Detect",
+            "type": "python",
+            "request": "launch",
+            "program": "detect.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "--yolo_model", "./runs/yolov5s/weights/best.pt",
+                "--source", "../datasets/SmartPlane/images"
             ]
         },
     ]

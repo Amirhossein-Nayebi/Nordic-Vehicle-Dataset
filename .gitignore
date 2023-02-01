@@ -17,4 +17,5 @@ Results*
 *.jpg
 *.avi
 /datasets
-tmp.yaml
+smart_plane.yaml
+runs*

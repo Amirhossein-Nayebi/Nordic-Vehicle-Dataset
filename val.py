@@ -2,14 +2,12 @@ import argparse
 import clearml
 import os
 import sys
-
-sys.path.append("..")
-import yolov5.val as yolo_val
+import yolov5.val
 
 
 def main(opt):
     # clearml.browser_login()
-    yolo_val.run(
+    yolov5.val.run(
         weights=opt.yolo_model,
         project=opt.project,
         name=os.path.basename(opt.yolo_model) if opt.name is None else opt.name,

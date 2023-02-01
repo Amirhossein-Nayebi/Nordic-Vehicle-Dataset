@@ -1,9 +1,9 @@
 import argparse
-import yaml
 import clearml
 import os
 import sys
-from yolov5 import train
+import yolov5.train
+import prepare_data
 
 yolov5_models = {
     'yolov5n',
@@ -16,22 +16,21 @@ yolov5_models = {
 
 def main(opt):
 
-    # Read YAML file
-    with open("./smart_plane.yaml", "r") as file:
-        data = yaml.load(file, Loader=yaml.FullLoader)
-
-    data['path'] = os.path.abspath(data['path'])
-    # Write YAML file
-    with open("data.yaml", "w") as file:
-        yaml.dump(data, file)
+    dataFile = "./smart_plane.yaml"
+    if not os.path.isfile(dataFile):
+        sys.exit(
+            f"'{dataFile}' not found! Run 'python {prepare_data.__name__}.py --videos_dir <path/to/video/files> --data_dir <path/to/data/>'."
+        )
 
     # clearml.browser_login()
-    train.run(
+
+    yolov5.train.run(
         imgsz=1920,
         #    batch_size=16,
-        data='data.yaml',
+        data=dataFile,
         epochs=opt.epochs,
-        weights=opt.yolo_model + ".pt",
+        weights=opt.yolo_model if ".pt" in opt.yolo_model else opt.yolo_model +
+        ".pt",
         # cache=True,
         project=opt.project,
         name=opt.yolo_model if opt.name is None else opt.name)
