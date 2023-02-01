@@ -23,23 +23,29 @@ Create and activate a virtual environment:
 On Windows:
 
     python -m venv .venv
-    .\.venv\Scripts\Activate.ps1
+    .venv\Scripts\Activate.ps1
+
+On Ubuntu:
+
+    python3 -m venv .venv
+    .venv/bin/activate
+
 
 Note: ```.venv``` is the name of the virtual environment, you can change it to any other name of your choice.
 Now upgrade ```pip``` and install the required packages:
     
     python -m pip install --upgrade pip
-    pip install -r .\requirements.txt
+    pip install -r requirements.txt
 
 To prepare data:
 
-    python .\prepare_data.py --videos_dir C:\Users\am_na\source\repos\datasets\SmartPlane\Videos\ --data_dir ./data
+    python prepare_data.py --videos_dir path/to/videos/directory --data_dir data
 
 This will create a ```data``` directory and store all extracted frames and label data within it. Now, it's time to train the network using the prepared data:
 
-    python .\train.py --epochs EPOCHS --yolo_model YOLO_MODEL
+    python train.py --epochs EPOCHS --yolo_model YOLO_MODEL
 
-Replace ```EPOCHS``` with the number of training epochs and YOLO_MODEL with one of the following YOLO models:
+Replace ```EPOCHS``` with the number of training epochs and ```YOLO_MODEL``` with one of the following YOLO models:
     
     yolov5n, yolov5s, yolov5m, yolov5l, yolov5x 
 
@@ -47,11 +53,13 @@ Replace ```EPOCHS``` with the number of training epochs and YOLO_MODEL with one 
 ```yolov5x``` has the maximum number of parameters and the lowest speed.
 
 Training is a long process and requires a huge amount of system resources.
-To view the progress open another Power Shell terminal, navigate to the ```source directory``` and run:
+To view the progress open another terminal, navigate to the ```source directory``` and run:
 
-    tensorboard --logdir .\runs\
+    tensorboard --logdir runs
 
 Navigate to the prompted url (e.g. ```http://localhost:6006/```) in your browser to view the training curves.
 After the training is finished, you can validate the trained model with test set (test set is created automatically in the data preparation phase and is not used for training.):
 
-    python .\val.py --yolo_model YOLO_MODEL
+    python val.py --yolo_model YOLO_MODEL
+
+For ```YOLO_MODEL```, provide the path to the trained network's weight file (```.pt```) located in the ```runs``` directory.
