@@ -1,6 +1,0 @@
-names:
-  0: car
-path: /home/aminay/datasets/SmartPlane
-test: test.txt
-train: train.txt
-val: val.txt
