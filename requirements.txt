@@ -97,3 +97,4 @@ thop>=0.1.1  # FLOPs computation
 ultralytics
 scikit-learn
 clearml
+yolov5

@@ -22,9 +22,7 @@ def main(opt):
         imgsz=1920,
         single_cls=True,
         #    batch_size=16,
-        data="./smart_plane.yaml",
-        device='cpu',
-        half=False)
+        data="./smart_plane.yaml")
 
 
 def parse_opt(known=False):

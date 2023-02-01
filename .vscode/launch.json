@@ -27,5 +27,16 @@
                 "--out_dir", "../datasets/SmartPlane",
             ]
         },
+        {
+            "name": "Train",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "--epochs", "1",
+            ]
+        },
     ]
 }

@@ -12,5 +12,6 @@
         "readkp",
         "vidcap",
         "xyxy"
-    ]
+    ],
+    "debug.allowBreakpointsEverywhere": false
 }

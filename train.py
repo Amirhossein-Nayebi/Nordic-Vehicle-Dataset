@@ -1,10 +1,9 @@
 import argparse
+import yaml
 import clearml
 import os
 import sys
-
-sys.path.append("..")
-import yolov5.train as yolo_train
+from yolov5 import train
 
 yolov5_models = {
     'yolov5n',
@@ -16,11 +15,21 @@ yolov5_models = {
 
 
 def main(opt):
+
+    # Read YAML file
+    with open("./smart_plane.yaml", "r") as file:
+        data = yaml.load(file, Loader=yaml.FullLoader)
+
+    data['path'] = os.path.abspath(data['path'])
+    # Write YAML file
+    with open("data.yaml", "w") as file:
+        yaml.dump(data, file)
+
     # clearml.browser_login()
-    yolo_train.run(
+    train.run(
         imgsz=1920,
         #    batch_size=16,
-        data="./smart_plane.yaml",
+        data='data.yaml',
         epochs=opt.epochs,
         weights=opt.yolo_model + ".pt",
         # cache=True,
