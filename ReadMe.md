@@ -58,7 +58,7 @@ To view the progress open another terminal, navigate to the ```source directory`
     tensorboard --logdir runs
 
 Navigate to the prompted url (e.g. ```http://localhost:6006/```) in your browser to view the training curves.
-After the training is finished, you can validate the trained model with test set (test set is created automatically in the data preparation phase and is not used for training.):
+After the training is finished, you can validate the trained model with the test set (the test set is created automatically in the data preparation phase and is not used for training.):
 
     python val.py --yolo_model YOLO_MODEL
 
