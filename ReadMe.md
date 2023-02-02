@@ -68,7 +68,7 @@ To detect cars in videos and images you can simply pass a file (video/image) or 
 
     python detect.py --yolo_model YOLO_MODEL --source FILE/FOLDER --conf_thres CONF_THRES
 
-As before ```YOLO_MODEL``` is the path to a trained network's weights file, FILE/FOLDER is a file path to an image or video or a folder path containing images and videos. CONF_THRES is the confidence threshold which is set to 0.25 by default. The detection results are saved in ```runs/detect``` directory.
+As before ```YOLO_MODEL``` is the path to a trained network's weights file, FILE/FOLDER is a file path to an image or video or a folder path containing images and videos. ```CONF_THRES``` is the confidence threshold which is set to 0.25 by default. The detection results are saved in ```runs/detect``` directory.
 
 ## Results
 
