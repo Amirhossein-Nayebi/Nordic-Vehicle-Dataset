@@ -9,7 +9,7 @@ def main(opt):
                   data="./smart_plane.yaml",
                   imgsz=1920,
                   conf_thres=opt.conf_thres,
-                  view_img=True,
+                  view_img=False,
                   save_txt=True)
 
 

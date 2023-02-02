@@ -62,4 +62,28 @@ After the training is finished, you can validate the trained model with test set
 
     python val.py --yolo_model YOLO_MODEL
 
-For ```YOLO_MODEL```, provide the path to the trained network's weight file (```.pt```) located in the ```runs``` directory.
+For ```YOLO_MODEL```, provide the path to a trained network's weight file (```.pt```) located in the ```runs/train``` directory. The validation results are save in ```runs/val``` directory.
+
+To detect cars in videos and images you can simply pass a file (video/image) or a directory path containing videos/images to ```detect.py``` script:
+
+    python detect.py --yolo_model YOLO_MODEL --source FILE/FOLDER --conf_thres CONF_THRES
+
+As before ```YOLO_MODEL``` is the path to a trained network's weights file, FILE/FOLDER is a file path to an image or video or a folder path containing images and videos. The detection results are saved in ```runs/detect``` directory.
+
+## Results
+
+### Train Box Loss per Epoch (YOLOv5s & YOLOv5n)
+<img src="./curves/train_box_loss.svg" alt="Train Box Loss (YOLOv5s & YOLOv5n)">
+
+### Train Object Loss per Epoch (YOLOv5s & YOLOv5n)
+<img src="./curves/train_obj_loss.svg" alt="Train Object Loss (YOLOv5s & YOLOv5n)">
+
+### Validation Box Loss per Epoch (YOLOv5s & YOLOv5n)
+<img src="./curves/val_box_loss.svg" alt="Validation Box Loss (YOLOv5s & YOLOv5n)">
+
+### Validation Object Loss per Epoch (YOLOv5s & YOLOv5n)
+<img src="./curves/val_obj_loss.svg" alt="Validation Object Loss (YOLOv5s & YOLOv5n)">
+
+### mAP, Precision and Recall per Epoch Curves
+<img src="./curves/mAP-Precision-Recall.png" alt="mAP, Precision and Recall per Epoch">
+
