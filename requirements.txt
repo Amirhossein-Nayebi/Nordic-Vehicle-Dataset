@@ -1,4 +1,5 @@
 ultralytics
 scikit-learn
 clearml
+moviepy
 yolov5

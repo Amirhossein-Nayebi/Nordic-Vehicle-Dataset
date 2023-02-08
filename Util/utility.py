@@ -212,7 +212,7 @@ class AnnotationBox:
         return yolo_bbox
 
     def GetBoxesFromXMLAnnotationFile(
-            annotationFile: str) -> Tuple[Dict[int, List[Any]], int, int]:
+            annotationFile: str) -> Tuple[Dict[int, List["AnnotationBox"]], int, int]:
         tree = et.parse(annotationFile)
         root = tree.getroot()
 

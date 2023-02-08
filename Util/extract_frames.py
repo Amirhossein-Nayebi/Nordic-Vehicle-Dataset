@@ -1,8 +1,8 @@
-import cv2
 import sys
 import os
 import argparse
-
+from moviepy.video.io.VideoFileClip import VideoFileClip
+import imageio
 
 def GetFrameIndex(frameStr: str) -> int:
     splits = frameStr.split(':')
@@ -47,35 +47,32 @@ def Extract(videoFile: str, startFrame: str, endFrame: str, outDir: str,
                 f"Failed to create output directory '{outDir}'!\r\n{e.args[0]}"
             )
 
-    vidcap = cv2.VideoCapture(videoFile)
+    vidcap = VideoFileClip(videoFile)
 
     if inSeconds:
         # Get the frame rate of the video
-        frame_rate = vidcap.get(cv2.CAP_PROP_FPS)
         # Calculate the frame index from the frame time
-        startFrameNumber = int(startFrameInSeconds * frame_rate)
-        endFrameNumber = int(endFrameInSeconds * frame_rate)
+        startFrameNumber = int(startFrameInSeconds * vidcap.fps)
+        endFrameNumber = int(endFrameInSeconds * vidcap.fps)
     else:
         startFrameNumber = startFrameInSeconds
         endFrameNumber = endFrameInSeconds
 
     digitsCount = len(str(endFrameNumber))
 
-    # Set the position of the video file reader to the desired frame number
-    vidcap.set(cv2.CAP_PROP_POS_FRAMES, startFrameNumber)
-    success, image = vidcap.read()
+    image = vidcap.get_frame(startFrameNumber / vidcap.fps)
     frameNumber = startFrameNumber
     while success:
         print("Writing frame", frameNumber, "...")
         frameNumberStr = format(frameNumber, f'0{digitsCount}d')
         frameFileName = os.path.join(outDir, f"frame{frameNumberStr}.png")
-        cv2.imwrite(frameFileName, image)
+        imageio.imwrite(frameFileName, image)
         extractedFrames.append(frameFileName)
         success, image = vidcap.read()
         frameNumber += 1
         if frameNumber > endFrameNumber:
             break
-        
+
     return extractedFrames
 
 

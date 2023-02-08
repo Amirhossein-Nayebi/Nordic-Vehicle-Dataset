@@ -3,10 +3,13 @@ import os
 import sys
 import glob
 from Util import utility
-import cv2
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 import yaml
+from moviepy.video.io.VideoFileClip import VideoFileClip
+import imageio
+
+data_file = "smart_plane.yaml"
 
 
 def main(opt):
@@ -14,19 +17,24 @@ def main(opt):
     print()
     video_files = []
 
-    if opt.videos_dir is not None:
-        videos_dir = os.path.abspath(opt.videos_dir)
-        if not os.path.isdir(videos_dir):
-            sys.exit(f"Videos directory '{videos_dir}' not found!")
+    if opt.source is not None:
+        source = os.path.abspath(opt.source)
+        dir_source = os.path.isdir(source)
+        file_source = os.path.isfile(source)
+        if not dir_source and not file_source:
+            sys.exit(f"There is no directory or file at path '{source}'!")
 
-        all_files = os.listdir(videos_dir)
-        video_files = [
-            fname for fname in all_files if fname.lower().endswith('.mp4')
-        ]
-        if len(video_files) == 0:
-            sys.exit(
-                f"The input directory '{videos_dir}' does not contain any MP4 videos!"
-            )
+        if dir_source:
+            all_files = os.listdir(source)
+            video_files = [
+                fname for fname in all_files if fname.lower().endswith('.mp4')
+            ]
+            if len(video_files) == 0:
+                sys.exit(
+                    f"The input directory '{source}' does not contain any MP4 videos!"
+                )
+        else:
+            video_files = [source]
 
     data_dir = os.path.abspath(opt.data_dir)
     if not os.path.isdir(data_dir):
@@ -45,37 +53,43 @@ def main(opt):
         sys.exit(f"Failed to create output directories!\r\n{e}")
 
     if len(video_files) > 0:
-        for videoFileBaseName in tqdm(video_files):
-            video_file_path = os.path.join(videos_dir, videoFileBaseName)
-            annotation_file_path = os.path.join(
-                videos_dir,
-                os.path.splitext(video_file_path)[0] + '.xml')
+        for video_file in tqdm(video_files):
+            if dir_source:
+                video_file_path = os.path.join(source, video_file)
+                annotation_file_path = os.path.join(
+                    source,
+                    os.path.splitext(video_file)[0] + '.xml')
+            else:
+                video_file_path = video_file
+                annotation_file_path = os.path.splitext(
+                    video_file_path)[0] + '.xml'
+
             if not os.path.isfile(annotation_file_path):
                 print(f"Annotation file '{annotation_file_path}' not found!")
                 continue
 
-            vidcap = cv2.VideoCapture(video_file_path)
-            frames_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+            vidcap = VideoFileClip(video_file_path)
+            # Get the duration of the video
+            duration = vidcap.duration
+
+            # Calculate the total number of frames
+            frames_count = int(duration * vidcap.fps)
             frame_num_len = len(str(frames_count))
 
             boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
                 annotation_file_path)
 
+            videoFileBaseName = os.path.basename(video_file_path)
+            print(f'Retrieving frames from {videoFileBaseName}...')
+
             for frameNum, boxes in tqdm(boxesPerFrame.items()):
-                # Set the position of the video file reader to the desired frame number
-                vidcap.set(cv2.CAP_PROP_POS_FRAMES, frameNum)
-                success, image = vidcap.read()
-                if not success:
-                    print(f"Failed to read frame {frameNum}!")
-                    continue
+                image = vidcap.get_frame(frameNum / vidcap.fps)
 
                 frameNumberStr = format(frameNum, f'0{frame_num_len}d')
                 frameFilePath = os.path.join(
                     imgs_dir,
                     videoFileBaseName + f"-frame{frameNumberStr}.png")
-                if not cv2.imwrite(frameFilePath, image):
-                    print(f"Failed to write image {frameFilePath}!")
-                    continue
+                imageio.imwrite(frameFilePath, image)
 
                 if len(boxes) > 0:
                     lines = []
@@ -146,7 +160,6 @@ def main(opt):
         },
     }
 
-    data_file = "smart_plane.yaml"
     # Write YAML file
     with open(data_file, "w") as file:
         yaml.dump(data, file)
@@ -160,11 +173,12 @@ def parse_opt(known=False):
         'This python script generates train, validation and test sets for \
             YOLO network using videos and their annotation files.')
     parser.add_argument(
-        '--videos_dir',
+        '--source',
         type=str,
         help=
-        'A directory path containing video and corresponding annotation files. \
-            If specified images and labels data are generated from annotated videos.',
+        'A directory path containing video and corresponding annotation files or a path to a video file. \
+            \nIf specified, images and labels data are generated from annotated videos in the data directory. \
+            \nIf not, only data lists are updated based on the contents of the data directory.',
         required=False)
     parser.add_argument('--data_dir',
                         type=str,

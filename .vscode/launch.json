@@ -23,7 +23,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--videos_dir", "../datasets/SmartPlane/Videos",
+                "--source", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4",
                 "--data_dir", "../datasets/SmartPlane",
             ]
         },
@@ -48,6 +48,28 @@
             "args":[
                 "--yolo_model", "./runs/yolov5s/weights/best.pt",
                 "--source", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4"
+            ]
+        },
+        {
+            "name": "View Annotations",
+            "type": "python",
+            "request": "launch",
+            "program": "view_annotations.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.xml",
+            ]
+        },
+        {
+            "name": "View Data",
+            "type": "python",
+            "request": "launch",
+            "program": "view_data.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "--video_file", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.MP4",
             ]
         },
     ]
