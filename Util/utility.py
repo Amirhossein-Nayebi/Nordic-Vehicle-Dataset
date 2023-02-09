@@ -216,8 +216,8 @@ class AnnotationBox:
         tree = et.parse(annotationFile)
         root = tree.getroot()
 
-        width = int(root.find("meta/original_size/width").text)
-        height = int(root.find("meta/original_size/height").text)
+        width = int(root.find("meta//original_size/width").text)
+        height = int(root.find("meta//original_size/height").text)
         allBoxes = root.findall("track/box")
 
         boxesByFrames = {}
