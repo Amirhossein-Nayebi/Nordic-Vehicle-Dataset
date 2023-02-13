@@ -83,13 +83,16 @@ def main(opt):
             print(f'Retrieving frames from {videoFileBaseName}...')
 
             for frameNum, boxes in tqdm(boxesPerFrame.items()):
-                image = vidcap.get_frame(frameNum / vidcap.fps)
-
                 frameNumberStr = format(frameNum, f'0{frame_num_len}d')
                 frameFilePath = os.path.join(
                     imgs_dir,
                     videoFileBaseName + f"-frame{frameNumberStr}.png")
-                imageio.imwrite(frameFilePath, image)
+                
+                if not os.path.isfile(frameFilePath):
+                    image = vidcap.get_frame(frameNum / vidcap.fps)
+                    imageio.imwrite(frameFilePath, image)
+                else:
+                    print(f'{frameFilePath} exists. Skipping...')
 
                 if len(boxes) > 0:
                     lines = []

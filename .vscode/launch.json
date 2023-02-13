@@ -23,7 +23,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--source", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4",
+                "--source", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
                 "--data_dir", "../datasets/SmartPlane",
             ]
         },
