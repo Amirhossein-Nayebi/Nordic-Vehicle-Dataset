@@ -36,6 +36,8 @@
             "justMyCode": true,
             "args":[
                 "--epochs", "1",
+                "--yolo_model", "yolov8n",
+                "--name", "debug",
             ]
         },
         {
@@ -58,7 +60,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.xml",
+                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.xml",
             ]
         },
         {
@@ -69,7 +71,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--video_file", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.MP4",
+                "--video_file", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
             ]
         },
     ]

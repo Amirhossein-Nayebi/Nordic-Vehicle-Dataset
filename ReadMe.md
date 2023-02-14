@@ -72,6 +72,24 @@ You can visualize all of the prepared data or only the data created for a specif
 
 The ```TYPE``` can be either ```train```, ```val```, or ```test```, indicating which split of the data you want to view. If the ```--video_file``` argument is provided, only the data related to that specific video file will be displayed. Due to the possibility of a large amount of data, it is recommended to check the data related to each video file individually by using the ```--video_file``` argument to ensure that the data has been correctly extracted from each video file. Similarly to the ```view_annotations.py``` script, this script also opens a window and displays the frames with augmented annotated data by pressing a key. To end the display process, press the ```'q'``` key.
 
+## Set up Logging
+Before starting the training process for the first time, you need to set up logging. To do this, you will need a ```ClearML``` account. To create an account or login to an existing one, navigate to [https://app.clear.ml/settings/workspace-configuration](https://app.clear.ml/settings/workspace-configuration), click on your profile picture, go to the ```Settings``` page, then click on ```Workspace```. Next, press ```Create new credentials``` and then press ```Copy to clipboard```. Finally, run the following command in the terminal with the activated environment:
+
+    clearml-init
+  
+Then paste copied configuration when prompted and press ```Enter```. If everything is okay, you should see the following message:
+    
+    ClearML Hosts configuration:
+    Web App: https://app.clear.ml
+    API: https://api.clear.ml
+    File Store: https://files.clear.ml
+
+    Verifying credentials ...
+    Credentials verified!
+
+    New configuration stored in <path to the created clearml.conf>
+    ClearML setup completed successfully.
+
 ## **Train**
 To train the network using the prepared data, run:
 
@@ -79,23 +97,21 @@ To train the network using the prepared data, run:
 
 Replace ```EPOCHS``` with the number of training epochs and ```YOLO_MODEL``` with one of the following YOLO models:
     
-    yolov5n, yolov5s, yolov5m, yolov5l, yolov5x 
+    yolov5n, yolov5s, yolov5m, yolov5l, yolov5x, yolov8n, yolov8s, yolov8m, yolov8l, yolov8x  
 
-```yolov5n``` has the lowest number of parameters and the fastest speed. 
-```yolov5x``` has the maximum number of parameters and the lowest speed.
+```yolov*n``` has the lowest number of parameters and the fastest speed. 
+```yolov*x``` has the maximum number of parameters and the lowest speed.
 
-Training is a long process and requires a huge amount of system resources.
-To view the progress open another terminal, navigate to the ```source directory``` and run:
+Training is a long process and requires a huge amount of system resources. You can log in to you ClearML account to view the progress and results.
 
-    tensorboard --logdir runs
-
-Navigate to the prompted url (e.g. ```http://localhost:6006/```) in your browser to view the training curves.
+## **Test**
 After the training is finished, you can validate the trained model with the test set (the test set is created automatically in the data preparation phase and is not used for training.):
 
     python val.py [--yolo_model YOLO_MODEL]
 
 Here for ```YOLO_MODEL``` provide the path to a trained network's weight file (```.pt```) located in the ```runs/train``` directory. The validation results are save in ```runs/val``` directory.
 
+## **Detect Cars**
 To detect cars in videos and images you can simply pass a file (video/image) or a directory path containing videos/images to ```detect.py``` script:
 
     python detect.py [--yolo_model YOLO_MODEL] [--source FILE/DIR] [--conf_thres CONF_THRES]
