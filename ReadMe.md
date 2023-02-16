@@ -93,7 +93,7 @@ Then paste copied configuration when prompted and press ```Enter```. If everythi
 ## **Train**
 To train the network using the prepared data, run:
 
-    python train.py [--epochs EPOCHS] [--yolo_model YOLO_MODEL]
+    python train.py [--epochs EPOCHS] [--yolo_model YOLO_MODEL] [--batch BATCH-SIZE]
 
 Replace ```EPOCHS``` with the number of training epochs and ```YOLO_MODEL``` with one of the following YOLO models:
     
@@ -101,6 +101,8 @@ Replace ```EPOCHS``` with the number of training epochs and ```YOLO_MODEL``` wit
 
 ```yolov*n``` has the lowest number of parameters and the fastest speed. 
 ```yolov*x``` has the maximum number of parameters and the lowest speed.
+
+If you get out of memory error try to reduce ```BATCH-SIZE```.
 
 Training is a long process and requires a huge amount of system resources. You can log in to you ClearML account to view the progress and results.
 
