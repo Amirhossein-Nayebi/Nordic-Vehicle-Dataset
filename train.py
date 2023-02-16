@@ -29,13 +29,13 @@ def main(opt):
     epochs: int = opt.epochs
     project_name: str = opt.project
     exp_name: str = opt.yolo_model if opt.name is None else opt.name
-
+    batch_size = opt.batch
     clearml.browser_login()
 
     if "yolov5" in yolo_model_name.lower():
         yolov5.train.run(
             imgsz=1920,
-            #    batch_size=16,
+            batch_size=batch_size,
             data=prepare_data.data_file,
             epochs=epochs,
             weights=yolo_model_name,
@@ -45,7 +45,8 @@ def main(opt):
     elif "yolov8" in yolo_model_name.lower():
         try:
             model = yolov8(yolo_model_name)
-            model.train(imgsz=1920,
+            model.train(batch=batch_size,
+                        imgsz=1920,
                         data=prepare_data.data_file,
                         epochs=epochs,
                         model=yolo_model_name,
@@ -54,6 +55,7 @@ def main(opt):
         except Exception as ex:
             print(ex)
 
+
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
         description='This python script fine tunes YOLO over new car images.')
@@ -61,6 +63,13 @@ def parse_opt(known=False):
                         type=int,
                         help='total training epochs (default = 100)',
                         default=100)
+    parser.add_argument(
+        '--batch',
+        type=int,
+        help=
+        'Training batch size. If you get out of memory error try to reduce the bach value. (default = 10)',
+        default=10)
+
     parser.add_argument('--yolo_model',
                         type=str,
                         help='YOLO model to fine tune. Available models = ' +
