@@ -1,13 +1,14 @@
 import argparse
+import clearml
 import yolov5.detect
 import prepare_data
 from ultralytics import YOLO as yolov8
 
-
 def main(opt):
-    # clearml.browser_login()
     yolo_model_name: str = opt.yolo_model if ".pt" in opt.yolo_model else opt.yolo_model + ".pt"
     conf: float = opt.conf_thres
+    
+    clearml.browser_login()
 
     if "yolov5" in yolo_model_name.lower():
         yolov5.detect.run(weights=yolo_model_name,

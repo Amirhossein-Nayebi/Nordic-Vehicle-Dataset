@@ -8,13 +8,13 @@ import prepare_data
 
 
 def main(opt):
-    # clearml.browser_login()
-
     if not os.path.isfile(prepare_data.data_file):
         sys.exit(
             f"'{prepare_data.data_file}' not found! Run 'python {prepare_data.__name__}.py --videos_dir <path/to/video/files> --data_dir <path/to/data/>'."
         )
     yolo_model_name: str = opt.yolo_model if ".pt" in opt.yolo_model else opt.yolo_model + ".pt"
+
+    clearml.browser_login()
 
     if "yolov5" in yolo_model_name.lower():
         yolov5.val.run(
