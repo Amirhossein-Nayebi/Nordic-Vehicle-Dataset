@@ -187,6 +187,10 @@ class AnnotationBox:
                 maxY = p[1]
         return [minX, minY, maxX, maxY]
 
+    def GetDiagonalLength(self):
+        distance = np.sqrt(np.sum((self.__tlPoint - self.__brPoint)**2))
+        return distance
+
     def GetYOLOBoundingBox(self, width, height) -> List[float]:
         straight_bbox = self.GetStraightBoundingBox()
 
@@ -212,7 +216,8 @@ class AnnotationBox:
         return yolo_bbox
 
     def GetBoxesFromXMLAnnotationFile(
-            annotationFile: str) -> Tuple[Dict[int, List["AnnotationBox"]], int, int]:
+        annotationFile: str
+    ) -> Tuple[Dict[int, List["AnnotationBox"]], int, int]:
         tree = et.parse(annotationFile)
         root = tree.getroot()
 

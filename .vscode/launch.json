@@ -5,14 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Plot Box Size",
+            "type": "python",
+            "request": "launch",
+            "program": "plot_box_size.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "../datasets/SmartPlane/Videos/"
+            ]
+        },
+        {
             "name": "Validate",
             "type": "python",
             "request": "launch",
             "program": "val.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--yolo_model", "./runs/yolov5s/weights/best.pt",
+            "args": [
+                "--yolo_model",
+                "./runs/yolov5s/weights/best.pt",
             ]
         },
         {
@@ -22,9 +34,11 @@
             "program": "prepare_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--source", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
-                "--data_dir", "../datasets/SmartPlane",
+            "args": [
+                "--source",
+                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
+                "--data_dir",
+                "../datasets/SmartPlane",
             ]
         },
         {
@@ -34,10 +48,13 @@
             "program": "train.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--epochs", "1",
-                "--yolo_model", "yolov8n",
-                "--name", "debug",
+            "args": [
+                "--epochs",
+                "1",
+                "--yolo_model",
+                "yolov8n",
+                "--name",
+                "debug",
             ]
         },
         {
@@ -47,9 +64,11 @@
             "program": "detect.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--yolo_model", "./runs/yolov5s/weights/best.pt",
-                "--source", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4"
+            "args": [
+                "--yolo_model",
+                "./runs/yolov5s/weights/best.pt",
+                "--source",
+                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4"
             ]
         },
         {
@@ -59,7 +78,7 @@
             "program": "view_annotations.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
+            "args": [
                 "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.xml",
             ]
         },
@@ -70,8 +89,9 @@
             "program": "view_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--video_file", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
+            "args": [
+                "--video_file",
+                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
             ]
         },
     ]
