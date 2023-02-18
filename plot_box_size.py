@@ -23,7 +23,8 @@ def main(opt):
     if dir_source:
         all_files = os.listdir(source)
         ann_files = [
-            os.path.join(source, fname) for fname in all_files if fname.lower().endswith('.xml')
+            os.path.join(source, fname) for fname in all_files
+            if fname.lower().endswith('.xml')
         ]
         if len(ann_files) == 0:
             sys.exit(
@@ -41,14 +42,17 @@ def main(opt):
         with open(video_data_file, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
-                if row[0].lower() + ".xml" == os.path.basename(ann_file).lower():
+                if row[0].lower() + ".xml" == os.path.basename(
+                        ann_file).lower():
                     height_str = row[1].replace('m', '').strip()
                     height_splits = height_str.split('-')
                     max_height = float(height_splits[-1])
                     break
 
         if max_height < 0:
-            sys.exit(f"Failed to get height data from '{video_data_file}' for '{ann_file}'")
+            sys.exit(
+                f"Failed to get height data from '{video_data_file}' for '{ann_file}'"
+            )
 
         boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
             ann_file)
@@ -72,10 +76,10 @@ def main(opt):
         # Fit a robust polynomial regression model using RANSAC
         degree = 4
         ransac = RANSACRegressor(make_pipeline(PolynomialFeatures(degree),
-                                            LinearRegression()),
-                                residual_threshold=2.0,
-                                random_state=0,
-                                min_samples=20)
+                                               LinearRegression()),
+                                 residual_threshold=2.0,
+                                 random_state=0,
+                                 min_samples=20)
         ransac.fit(frames[:, np.newaxis], sizes)
 
         min_frame = frames.min()
@@ -92,7 +96,11 @@ def main(opt):
         # Plot the results
         fig, ax1 = plt.subplots()
         # ax1.plot(line_x, line_y, color='red', linewidth=3)
-        ax1.plot(line_x, heights, linewidth=3, color='red', label='Estimated Height (m)')
+        ax1.plot(line_x,
+                 heights,
+                 linewidth=3,
+                 color='red',
+                 label='Estimated Height (m)')
         ax1.set_xlabel("Frame Number")
         ax1.set_ylabel("Flight Height (m)")
         ax1.grid(True)
@@ -104,10 +112,13 @@ def main(opt):
                     marker='.',
                     facecolors='none',
                     edgecolors='blue',
-                    s=10, label='Reciprocal of Box Diagonal Length (1 / Pixels)')
+                    s=10,
+                    label='Reciprocal of Box Diagonal Length (1 / Pixels)')
         x_min, x_max = ax2.get_xlim()
-        ax2.plot([x_min, x_max], [max_y, max_y], linestyle='--', label=f"Max Height = {max_height} m")
-        
+        ax2.plot([x_min, x_max], [max_y, max_y],
+                 linestyle='--',
+                 label=f"Max Height = {max_height} m")
+
         ax2.set_ylabel("Reciprocal of Box Diagonal Length (1 / pixels)")
         y1, y2 = ax2.get_ylim()
         y1 *= height_scale
@@ -121,7 +132,7 @@ def main(opt):
 
         out_dir = opt.out_dir
         if not os.path.isdir(out_dir):
-             os.makedirs(out_dir)
+            os.makedirs(out_dir)
         plt.savefig(os.path.join(out_dir, title + ".png"))
     plt.show()
 
@@ -132,15 +143,18 @@ def parse_opt(known=False):
         'This Python script visualizes the annotated box sizes in each frame. \
             \nIt gets an annotation xml file and plots the mean box size in each frame vs frame number. \
             \nIt is useful to study variation of flight heigh.')
-    parser.add_argument('source',
-                        type=str,
-                        help='An annotation file or a directory containing annotation files. \
-                            \nIn case the source argument is a directory, one plot will be drawn per each xml annotation file.')
-    parser.add_argument('--out_dir',
-                        type=str,
-                        help='Directory where the plots will be saved. (Default = plots)',
-                        default='plots')
-                            
+    parser.add_argument(
+        'source',
+        type=str,
+        help='An annotation file or a directory containing annotation files. \
+                            \nIn case the source argument is a directory, one plot will be drawn per each xml annotation file.'
+    )
+    parser.add_argument(
+        '--out_dir',
+        type=str,
+        help='Directory where the plots will be saved. (Default = plots)',
+        default='plots')
+
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
 
