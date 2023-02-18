@@ -55,6 +55,7 @@ def main(opt):
 
     elif "yolov8" in yolo_model_name.lower():
         model = yolov8(yolo_model_name)  # load a custom model
+        model.add_callback("on_val_end", yolov8_val_end)
         # Validate the model
         metrics = model.val(
             data=prepare_data.data_file,
@@ -70,6 +71,28 @@ def main(opt):
             imgsz=imgsz,
             single_cls=single_cls,
         )
+
+
+def yolov8_val_end(validator):
+    res_file = os.path.join(validator.save_dir, "results.txt")
+    with open(res_file, "w") as file:
+        file.write(
+            f"Precision: {validator.metrics.results_dict['metrics/precision(B)']:.3f}\n"
+        )
+        file.write(
+            f"Recall: {validator.metrics.results_dict['metrics/recall(B)']:.3f}\n"
+        )
+        file.write(
+            f"mAP50: {validator.metrics.results_dict['metrics/mAP50(B)']:.3f}\n"
+        )
+        file.write(
+            f"mAP50-95: {validator.metrics.results_dict['metrics/mAP50-95(B)']:.3f}\n"
+        )
+        file.write("Speed:\n")
+        file.write(f"    Pre-process: {validator.speed[0]:.1f}ms\n")
+        file.write(f"    Inference: {validator.speed[1]:.1f}ms\n")
+        file.write(f"    Loss: {validator.speed[2]:.1f}ms\n")
+        file.write(f"    Post-process:: {validator.speed[3]:.1f}ms\n")
 
 
 def parse_opt(known=False):
