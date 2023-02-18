@@ -1,0 +1,1 @@
+Speed: 1.0ms pre-process, 4.8ms inference, 1.3ms NMS per image at shape (3, 1920, 1920)

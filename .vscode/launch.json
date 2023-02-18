@@ -5,14 +5,35 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Extract Frames",
+            "type": "python",
+            "request": "launch",
+            "program": "./Util/extract_frames.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-f",
+                "../datasets/SmartPlane/Videos/2022-12-04 Bjenberg 02.MP4",
+                "-s",
+                "00:03",
+                "-e",
+                "00:04",
+                "-o",
+                "test",
+            ]
+        },
+        {
             "name": "Validate",
             "type": "python",
             "request": "launch",
             "program": "val.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--yolo_model", "./runs/yolov5s/weights/best.pt",
+            "args": [
+                "--yolo_model",
+                "./runs/train/2022-02-17/yolov8n/weights/best.pt",
+                "--name",
+                "debug"
             ]
         },
         {
@@ -22,9 +43,11 @@
             "program": "prepare_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--source", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
-                "--data_dir", "../datasets/SmartPlane",
+            "args": [
+                "--source",
+                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
+                "--data_dir",
+                "../datasets/SmartPlane",
             ]
         },
         {
@@ -34,10 +57,13 @@
             "program": "train.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--epochs", "1",
-                "--yolo_model", "yolov8s",
-                "--name", "debug",
+            "args": [
+                "--epochs",
+                "1",
+                "--yolo_model",
+                "yolov8s",
+                "--name",
+                "debug",
             ]
         },
         {
@@ -47,9 +73,13 @@
             "program": "detect.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--yolo_model", "./runs/yolov5s/weights/best.pt",
-                "--source", "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.mp4"
+            "args": [
+                "--yolo_model",
+                "./runs/train/2022-02-17/yolov8n/weights/best.pt",
+                "--source",
+                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.MP4",
+                "--name",
+                "debug",
             ]
         },
         {
@@ -59,7 +89,7 @@
             "program": "view_annotations.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
+            "args": [
                 "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.xml",
             ]
         },
@@ -70,8 +100,9 @@
             "program": "view_data.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "--video_file", "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
+            "args": [
+                "--video_file",
+                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
             ]
         },
     ]

@@ -60,18 +60,18 @@ def Extract(videoFile: str, startFrame: str, endFrame: str, outDir: str,
 
     digitsCount = len(str(endFrameNumber))
 
-    image = vidcap.get_frame(startFrameNumber / vidcap.fps)
+    # Get a subclip from the start frame to the end frame
+    subclip = vidcap.subclip(startFrameNumber / vidcap.fps, endFrameNumber / vidcap.fps)
+
+    # Iterate over the frames in the subclip
     frameNumber = startFrameNumber
-    while success:
+    for frame in subclip.iter_frames():
         print("Writing frame", frameNumber, "...")
         frameNumberStr = format(frameNumber, f'0{digitsCount}d')
         frameFileName = os.path.join(outDir, f"frame{frameNumberStr}.png")
-        imageio.imwrite(frameFileName, image)
+        imageio.imwrite(frameFileName, frame)
         extractedFrames.append(frameFileName)
-        success, image = vidcap.read()
         frameNumber += 1
-        if frameNumber > endFrameNumber:
-            break
 
     return extractedFrames
 

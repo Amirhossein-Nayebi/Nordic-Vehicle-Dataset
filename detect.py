@@ -1,14 +1,20 @@
 import argparse
+import os
 import clearml
 import yolov5.detect
 import prepare_data
 from ultralytics import YOLO as yolov8
 
+
 def main(opt):
     yolo_model_name: str = opt.yolo_model if ".pt" in opt.yolo_model else opt.yolo_model + ".pt"
     conf: float = opt.conf_thres
-    
+
     clearml.browser_login()
+
+    project = opt.project
+    run_name = os.path.basename(
+        opt.yolo_model) if opt.name is None else opt.name
 
     if "yolov5" in yolo_model_name.lower():
         yolov5.detect.run(weights=yolo_model_name,
@@ -17,10 +23,17 @@ def main(opt):
                           imgsz=1920,
                           conf_thres=conf,
                           view_img=False,
-                          save_txt=True)
+                          save_txt=True,
+                          project=project,
+                          name=run_name)
     elif "yolov8" in yolo_model_name.lower():
         model = yolov8(yolo_model_name)
-        model(source=opt.source, conf=conf, save_txt=True)
+        model(source=opt.source,
+              conf=conf,
+              save=True,
+              save_txt=True,
+              project=project,
+              name=run_name)
 
 
 def parse_opt(known=False):
@@ -36,6 +49,15 @@ def parse_opt(known=False):
                         type=float,
                         help='confidence threshold',
                         default=0.25)
+    parser.add_argument(
+        '--project',
+        type=str,
+        help="Project name. If omitted, is set to 'runs/detect'.",
+        default='runs/detect')
+    parser.add_argument('--name',
+                        type=str,
+                        help='Task name. If omitted, yolo model name is used.',
+                        default=None)
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
