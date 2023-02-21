@@ -17,6 +17,8 @@ def main(opt):
     print()
     video_files = []
 
+    test_videos = opt.test_videos
+
     if opt.source is not None:
         source = os.path.abspath(opt.source)
         dir_source = os.path.isdir(source)
@@ -87,7 +89,7 @@ def main(opt):
                 frameFilePath = os.path.join(
                     imgs_dir,
                     videoFileBaseName + f"-frame{frameNumberStr}.png")
-                
+
                 if not os.path.isfile(frameFilePath):
                     image = vidcap.get_frame(frameNum / vidcap.fps)
                     imageio.imwrite(frameFilePath, image)
@@ -127,18 +129,35 @@ def main(opt):
         images[i] = "./images/" + os.path.basename(images[i])
         # labels[i] = "./labels/" + os.path.basename(labels[i])
 
-    images_train, images_val_test, labels_train, labels_val_test = train_test_split(
-        images, images, train_size=opt.train_size)
+    if test_videos is None:
+        images_train, images_val_test, labels_train, labels_val_test = train_test_split(
+            images, images, train_size=opt.train_size)
 
-    images_val, images_test, labels_val, labels_test = train_test_split(
-        images_val_test,
-        labels_val_test,
-        test_size=opt.test_size / (opt.test_size + opt.val_size))
+        images_val, images_test, labels_val, labels_test = train_test_split(
+            images_val_test,
+            labels_val_test,
+            test_size=opt.test_size / (opt.test_size + opt.val_size))
+    else:
+        images_test = []
+        images_train_val = []
+        for image_path in images:
+            is_from_test_video = False
+            for test_video in test_videos:
+                if os.path.basename(test_video) in image_path:
+                    is_from_test_video = True
+                    break
+            if is_from_test_video:
+                images_test.append(image_path)
+            else:
+                images_train_val.append(image_path)
+        images_train, images_val = train_test_split(images_train_val,
+                                                    train_size=opt.train_size)
 
     trainFile = 'train.txt'
     valFile = 'val.txt'
     testFile = 'test.txt'
 
+    print()
     with open(os.path.join(data_dir, trainFile), 'w') as file:
         file.writelines('\n'.join(images_train))
     print(f"'{trainFile}' created in '{data_dir}'.")
@@ -199,11 +218,18 @@ def parse_opt(known=False):
                         type=float,
                         help='Test set size ratio',
                         default=0.2)
+    parser.add_argument(
+        '--test_videos',
+        type=str,
+        nargs="+",
+        help=
+        'List of test video files separated by spaces. If it is not provided, test data will be created randomly from all videos.',
+        required=False)
+
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
 
 def run(**kwargs):
-    # Usage: import generate_data; generate_data.run(videos_dir=..., data_dir=..., train_size=0.6, val_size=0.2, test_size=0.2)
     opt = parse_opt(True)
     for k, v in kwargs.items():
         setattr(opt, k, v)
