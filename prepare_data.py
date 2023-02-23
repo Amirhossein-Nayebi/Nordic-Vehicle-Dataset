@@ -8,9 +8,36 @@ from sklearn.model_selection import train_test_split
 import yaml
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import imageio
+import cv2
+import albumentations as A
+import os
+
+
 
 data_file = "smart_plane.yaml"
 
+def augment_image_options():
+    # more options here https://albumentations.ai/docs/getting_started/transforms_and_targets/
+    transform = A.Compose(
+        [A.RandomRain(p=0.5),
+         A.RandomSunFlare(p=0.5),
+         A.RandomFog(p=0.5),
+         # A.RandomBrightness(p=0.5),
+         # A.RGBShift(p=0.5),
+         A.RandomSnow(p=0.5),
+         # A.HorizontalFlip(p=0.5)), A.VerticalFlip(p=1),
+         # A.RandomContrast(limit = 0.5,p=0.5)),
+         # A.HueSaturationValue(p=1,hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=50),
+         # A.Resize(width=1920, height=1080),
+         # A.RandomCrop(width=1280, height=720),
+         # A.Rotate(limit=40, p=0.9, border_mode=cv2.BORDER_CONSTANT),
+         # A.HorizontalFlip(p=0.5),
+         # A.VerticalFlip(p=0.1),
+         # A.RGBShift(r_shift_limit=25, g_shift_limit=25, b_shift_limit=25, p=0.9),
+         # A.OneOf([ A.Blur(blur_limit=3, p=0.5),A.ColorJitter(p=0.5),   ], p=1.0),
+         ])
+    return transform
+transform = augment_image_options()
 
 def main(opt):
 
@@ -93,6 +120,15 @@ def main(opt):
                 if not os.path.isfile(frameFilePath):
                     image = vidcap.get_frame(frameNum / vidcap.fps)
                     imageio.imwrite(frameFilePath, image)
+                    print(frameFilePath)
+                    for i in range(50):
+                        augmentations = transform(image=image)
+                        augmented_img = augmentations["image"]
+                        frameFilePathaug = os.path.join(
+                            imgs_dir,
+                            videoFileBaseName + f"-frame{frameNumberStr}_{str(i)}.png")
+                        #name = title + str(i) + '.jpg'
+                        imageio.imwrite(frameFilePathaug, augmented_img)
                 else:
                     print(f'{frameFilePath} exists. Skipping...')
 
@@ -114,6 +150,15 @@ def main(opt):
 
                     with open(labelFilePath, 'w') as file:
                         file.writelines(lines)
+
+                    for i in range(50):
+                        labelFilePathaugm = os.path.join(
+                            lbs_dir,
+                            os.path.splitext(os.path.basename(frameFilePath))[0] +"_" + str(i)+
+                            ".txt")
+
+                        with open(labelFilePathaugm, 'w') as file:
+                            file.writelines(lines)
 
     images = glob.glob(os.path.join(os.path.relpath(imgs_dir, '.'), "*.png"))
     # labels = glob.glob(os.path.join(os.path.relpath(lbs_dir, '.'), "*.txt"))
