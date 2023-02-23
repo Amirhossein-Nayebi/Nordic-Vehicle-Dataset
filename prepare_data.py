@@ -14,7 +14,7 @@ import albumentations as A
 
 
 data_file = "smart_plane.yaml"
-
+total_augmentations =50
 def augment_image_options():
     # more options here https://albumentations.ai/docs/getting_started/transforms_and_targets/
     transform = A.Compose(
@@ -120,7 +120,7 @@ def main(opt):
                     image = vidcap.get_frame(frameNum / vidcap.fps)
                     imageio.imwrite(frameFilePath, image)
                     print(frameFilePath)
-                    for i in range(50):
+                    for i in range(total_augmentations):
                         augmentations = transform(image=image)
                         augmented_img = augmentations["image"]
                         frameFilePathaug = os.path.join(
@@ -150,7 +150,7 @@ def main(opt):
                     with open(labelFilePath, 'w') as file:
                         file.writelines(lines)
 
-                    for i in range(50):
+                    for i in range(total_augmentations):
                         labelFilePathaugm = os.path.join(
                             lbs_dir,
                             os.path.splitext(os.path.basename(frameFilePath))[0] +"_" + str(i)+
