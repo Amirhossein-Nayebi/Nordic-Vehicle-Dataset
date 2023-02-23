@@ -10,7 +10,6 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import imageio
 import cv2
 import albumentations as A
-import os
 
 
 
