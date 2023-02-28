@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 import yaml
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import imageio
+import albumentations as A
+import shutil
 
 data_file = "smart_plane.yaml"
 
@@ -16,6 +18,7 @@ def main(opt):
 
     print()
     video_files = []
+    total_augmentations = opt.total_augmentations
 
     test_videos = opt.test_videos
 
@@ -53,6 +56,26 @@ def main(opt):
             os.makedirs(lbs_dir)
     except Exception as e:
         sys.exit(f"Failed to create output directories!\r\n{e}")
+
+    # more options here https://albumentations.ai/docs/getting_started/transforms_and_targets/
+    aug_transform = A.Compose([
+        A.RandomRain(p=0.5),
+        #  A.RandomSunFlare(p=0.5),
+        A.RandomFog(p=0.5, fog_coef_lower=0.01, fog_coef_upper=0.1),
+        # A.RandomBrightness(p=0.5),
+        # A.RGBShift(p=0.5),
+        #  A.RandomSnow(p=0.5),
+        # A.HorizontalFlip(p=0.5)), A.VerticalFlip(p=1),
+        # A.RandomContrast(limit = 0.5,p=0.5)),
+        # A.HueSaturationValue(p=1,hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=50),
+        # A.Resize(width=1920, height=1080),
+        # A.RandomCrop(width=1280, height=720),
+        # A.Rotate(limit=40, p=0.9, border_mode=cv2.BORDER_CONSTANT),
+        # A.HorizontalFlip(p=0.5),
+        # A.VerticalFlip(p=0.1),
+        # A.RGBShift(r_shift_limit=25, g_shift_limit=25, b_shift_limit=25, p=0.9),
+        # A.OneOf([ A.Blur(blur_limit=3, p=0.5),A.ColorJitter(p=0.5),   ], p=1.0),
+    ])
 
     if len(video_files) > 0:
         for video_file in tqdm(video_files):
@@ -93,6 +116,18 @@ def main(opt):
                 if not os.path.isfile(frameFilePath):
                     image = vidcap.get_frame(frameNum / vidcap.fps)
                     imageio.imwrite(frameFilePath, image)
+
+                    ################### Augmentation ###################
+                    augmentedFrameFilePathBase = os.path.splitext(
+                        frameFilePath)[0]
+                    for aug_index in range(total_augmentations):
+                        augmentations = aug_transform(image=image)
+                        augmented_img = augmentations["image"]
+                        augmentedFrameFilePath = augmentedFrameFilePathBase + "_" + str(
+                            aug_index) + ".png"
+                        imageio.imwrite(augmentedFrameFilePath, augmented_img)
+                    ####################################################
+
                 else:
                     print(f'{frameFilePath} exists. Skipping...')
 
@@ -114,6 +149,15 @@ def main(opt):
 
                     with open(labelFilePath, 'w') as file:
                         file.writelines(lines)
+
+                    ################### Augmentation ###################
+                    # Since we do not apply any geometric augmentation we simply copy
+                    # the generated label file for each augmented frame
+                    for aug_index in range(total_augmentations):
+                        augmentedLabelFilePath = labelFilePath.replace(
+                            ".txt", f"_{aug_index}.txt")
+                        shutil.copyfile(labelFilePath, augmentedLabelFilePath)
+                    ####################################################
 
     images = glob.glob(os.path.join(os.path.relpath(imgs_dir, '.'), "*.png"))
     # labels = glob.glob(os.path.join(os.path.relpath(lbs_dir, '.'), "*.txt"))
@@ -225,6 +269,12 @@ def parse_opt(known=False):
         help=
         'List of test video files separated by spaces. If it is not provided, test data will be created randomly from all videos.',
         required=False)
+
+    parser.add_argument(
+        '--total_augmentations',
+        type=int,
+        help='Number of additional augmentations per frame. (Default = 0)',
+        default=0)
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
