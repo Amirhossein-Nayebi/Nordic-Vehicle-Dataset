@@ -10,6 +10,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import imageio
 import albumentations as A
 import shutil
+import cv2
 
 data_file = "smart_plane.yaml"
 
@@ -120,12 +121,13 @@ def main(opt):
                     ################### Augmentation ###################
                     augmentedFrameFilePathBase = os.path.splitext(
                         frameFilePath)[0]
-                    for aug_index in range(total_augmentations):
+                    for aug_index in tqdm(range(total_augmentations)):
                         augmentations = aug_transform(image=image)
                         augmented_img = augmentations["image"]
                         augmentedFrameFilePath = augmentedFrameFilePathBase + "_" + str(
                             aug_index) + ".png"
-                        imageio.imwrite(augmentedFrameFilePath, augmented_img)
+                        cv2.imwrite(augmentedFrameFilePath, augmented_img)
+                        # imageio.imwrite(augmentedFrameFilePath, augmented_img)
                     ####################################################
 
                 else:
@@ -153,7 +155,7 @@ def main(opt):
                     ################### Augmentation ###################
                     # Since we do not apply any geometric augmentation we simply copy
                     # the generated label file for each augmented frame
-                    for aug_index in range(total_augmentations):
+                    for aug_index in tqdm(range(total_augmentations)):
                         augmentedLabelFilePath = labelFilePath.replace(
                             ".txt", f"_{aug_index}.txt")
                         shutil.copyfile(labelFilePath, augmentedLabelFilePath)
