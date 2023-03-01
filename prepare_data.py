@@ -7,8 +7,6 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 import yaml
 from moviepy.video.io.VideoFileClip import VideoFileClip
-import imageio
-import albumentations as A
 import cv2
 import data_stats
 
