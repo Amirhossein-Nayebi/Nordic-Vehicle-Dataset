@@ -46,9 +46,7 @@
             "args": [
                 "--source", "../datasets/SmartPlane/Videos/",
                 "--data_dir", "../datasets/SmartPlane/",
-                "--test_videos", "../datasets/SmartPlane/Videos/2022-12-04 Bjenberg 02.MP4",
-                "--train_size", "0.8",
-                "--total_augmentations", "50"
+                "--sequential",
             ]
         },
         {
