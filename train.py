@@ -5,6 +5,7 @@ import sys
 import yolov5.train
 import prepare_data
 from ultralytics import YOLO as yolov8
+import yaml
 
 available_models = [
     'yolov5n',
@@ -19,6 +20,8 @@ available_models = [
     'yolov8x',
 ]
 
+hyp_file = './hyp.yaml'
+
 
 def main(opt):
     if not os.path.isfile(prepare_data.data_file):
@@ -31,27 +34,44 @@ def main(opt):
     exp_name: str = opt.yolo_model if opt.name is None else opt.name
     batch_size = opt.batch
     clearml.browser_login()
+    apply_augmentation = opt.aug
 
     if "yolov5" in yolo_model_name.lower():
-        yolov5.train.run(
-            imgsz=1920,
-            batch_size=batch_size,
-            data=prepare_data.data_file,
-            epochs=epochs,
-            weights=yolo_model_name,
-            # cache=True,
-            project=project_name,
-            name=exp_name)
+        params = {
+            'imgsz': 1920,
+            'batch_size': batch_size,
+            'data': prepare_data.data_file,
+            'epochs': epochs,
+            'weights': yolo_model_name,
+            "project": project_name,
+            "name": exp_name
+        }
+        if apply_augmentation:
+            params['hyp'] = hyp_file
+        yolov5.train.run(**params)
     elif "yolov8" in yolo_model_name.lower():
         try:
             model = yolov8(yolo_model_name)
-            model.train(batch=batch_size,
-                        imgsz=1920,
-                        data=prepare_data.data_file,
-                        epochs=epochs,
-                        model=yolo_model_name,
-                        project=project_name,
-                        name=exp_name)
+            params = dict()
+            if apply_augmentation:
+                with open(hyp_file) as file:
+                    params = yaml.safe_load(file)
+                    # These parameters are not used in YOLOv8:
+                    del params['obj_pw']
+                    del params['anchor_t']
+                    del params['iou_t']
+                    del params['cls_pw']
+                    del params['obj']
+            params.update({
+                'batch': batch_size,
+                'imgsz': 1920,
+                'data': prepare_data.data_file,
+                'epochs': epochs,
+                'model': yolo_model_name,
+                'project': project_name,
+                'name': exp_name
+            })
+            model.train(**params)
         except Exception as ex:
             print(ex)
 
@@ -84,6 +104,10 @@ def parse_opt(known=False):
                         type=str,
                         help='Task name. If omitted, yolo model name is used.',
                         default=None)
+
+    parser.add_argument('--aug',
+                        action='store_true',
+                        help='Apply online augmentation.')
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 

@@ -6,6 +6,8 @@
         "CSRT",
         "CVAT",
         "FFD",
+        "fliplr",
+        "flipud",
         "GOTURN",
         "MEDIANFLOW",
         "MOSSE",
