@@ -11,6 +11,7 @@ from Util import utility
 from tqdm import tqdm
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from matplotlib import pyplot as plt
+import joblib
 
 
 def main(opt):
@@ -81,6 +82,8 @@ def main(opt):
                                  random_state=0,
                                  min_samples=20)
         ransac.fit(frames[:, np.newaxis], sizes)
+        # Save the fitted polynomial model to a file
+        joblib.dump(ransac, ann_file + '.pkl')
 
         min_frame = frames.min()
         max_frame = frames.max()
@@ -91,6 +94,8 @@ def main(opt):
         max_y = line_y.max()
 
         height_scale = max_height / max_y
+        print(ann_file)
+        print(height_scale)
         heights = line_y * height_scale
 
         # Plot the results
