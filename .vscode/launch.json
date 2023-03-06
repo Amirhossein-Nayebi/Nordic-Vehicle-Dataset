@@ -23,6 +23,17 @@
             ]
         },
         {
+            "name": "Plot Box Size",
+            "type": "python",
+            "request": "launch",
+            "program": "plot_box_size.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                "../datasets/SmartPlane/Videos/"
+            ]
+        },
+        {
             "name": "Validate",
             "type": "python",
             "request": "launch",
