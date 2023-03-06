@@ -23,10 +23,10 @@
             ]
         },
         {
-            "name": "Plot Box Size",
+            "name": "Estimate Flight Height",
             "type": "python",
             "request": "launch",
-            "program": "plot_box_size.py",
+            "program": "estimate_flight_height.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[

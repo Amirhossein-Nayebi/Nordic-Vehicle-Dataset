@@ -9,31 +9,26 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from Util import utility
 from tqdm import tqdm
-from moviepy.video.io.VideoFileClip import VideoFileClip
 from matplotlib import pyplot as plt
-import joblib
 
 
 def main(opt):
     source = os.path.abspath(opt.source)
     dir_source = os.path.isdir(source)
-    file_source = os.path.isfile(source)
-    if not dir_source and not file_source:
-        sys.exit(f"There is no directory or file at path '{source}'!")
+    if not dir_source:
+        sys.exit(f"There is no directory at path '{source}'!")
 
-    if dir_source:
-        all_files = os.listdir(source)
-        ann_files = [
-            os.path.join(source, fname) for fname in all_files
-            if fname.lower().endswith('.xml')
-        ]
-        if len(ann_files) == 0:
-            sys.exit(
-                f"The input directory '{source}' does not contain any xml annotation file!"
-            )
-    else:
-        ann_files = [source]
+    all_files = os.listdir(source)
+    ann_files = [
+        os.path.join(source, fname) for fname in all_files
+        if fname.lower().endswith('.xml')
+    ]
+    if len(ann_files) == 0:
+        sys.exit(
+            f"The input directory '{source}' does not contain any xml annotation file!"
+        )
 
+    # Video data file contains information about maximum flight height
     video_data_file = 'video_data.csv'
     if not os.path.isfile(video_data_file):
         sys.exit(f"'{video_data_file}' not found!")
@@ -82,8 +77,6 @@ def main(opt):
                                  random_state=0,
                                  min_samples=20)
         ransac.fit(frames[:, np.newaxis], sizes)
-        # Save the fitted polynomial model to a file
-        joblib.dump(ransac, ann_file + '.pkl')
 
         min_frame = frames.min()
         max_frame = frames.max()
@@ -94,15 +87,26 @@ def main(opt):
         max_y = line_y.max()
 
         height_scale = max_height / max_y
-        print(ann_file)
-        print(height_scale)
-        heights = line_y * height_scale
+        heights_for_plot = line_y * height_scale
+
+        # Write height info for every annotated frame to a file next to the annotation file
+
+        all_heights = ransac.predict(frames[:, np.newaxis]) * height_scale
+
+        dir_path = os.path.dirname(ann_file)
+        file_basename_without_ext = os.path.splitext(
+            os.path.basename(ann_file))[0]
+        height_file = os.path.join(dir_path,
+                                   file_basename_without_ext + ".hinfo")
+        with open(height_file, 'w') as f:
+            for frame_num, height in zip(frames, all_heights):
+                f.write(f"{frame_num},{height}\n")
 
         # Plot the results
         fig, ax1 = plt.subplots()
         # ax1.plot(line_x, line_y, color='red', linewidth=3)
         ax1.plot(line_x,
-                 heights,
+                 heights_for_plot,
                  linewidth=3,
                  color='red',
                  label='Estimated Height (m)')
@@ -135,27 +139,27 @@ def main(opt):
         plt.title(title)
         fig.set_size_inches(8, 5)
 
-        out_dir = opt.out_dir
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        plt.savefig(os.path.join(out_dir, title + ".png"))
+        plot_dir = opt.plot_dir
+        if not os.path.isdir(plot_dir):
+            os.makedirs(plot_dir)
+        plt.savefig(os.path.join(plot_dir, title + ".png"))
     plt.show()
 
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
-        description=
-        'This Python script visualizes the annotated box sizes in each frame. \
-            \nIt gets an annotation xml file and plots the mean box size in each frame vs frame number. \
+        description='This Python script estimated flight height. \
+            \nIt gets a directory containing both annotation and video files and creates flight height info file for each video. \
+            \nIt also plots the estimated height vs frame number. \
             \nIt is useful to study variation of flight heigh.')
     parser.add_argument(
         'source',
         type=str,
-        help='An annotation file or a directory containing annotation files. \
-                            \nIn case the source argument is a directory, one plot will be drawn per each xml annotation file.'
+        help='A directory containing annotation and video files. \
+                            \nOne plot will be drawn per each xml annotation file.'
     )
     parser.add_argument(
-        '--out_dir',
+        '--plot_dir',
         type=str,
         help='Directory where the plots will be saved. (Default = plots)',
         default='plots')

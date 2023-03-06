@@ -9,6 +9,7 @@
         "fliplr",
         "flipud",
         "GOTURN",
+        "hinfo",
         "MEDIANFLOW",
         "MOSSE",
         "readkp",
