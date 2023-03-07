@@ -17,7 +17,7 @@ Results*
 *.jpg
 *.avi
 /datasets
-smart_plane.yaml
+*smart_plane.yaml
 runs*
 ReadMe.pdf
 .venv/

@@ -57,7 +57,7 @@
             "args": [
                 "--source", "../datasets/SmartPlane/Videos/",
                 "--data_dir", "../datasets/SmartPlane/",
-                "--sequential",
+                "--height_based",
             ]
         },
         {

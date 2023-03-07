@@ -8,9 +8,10 @@ import prepare_data
 
 
 def main(opt):
-    if not os.path.isfile(prepare_data.data_file):
+    data_file = opt.test_data
+    if not os.path.isfile(data_file):
         sys.exit(
-            f"'{prepare_data.data_file}' not found! Run 'python {prepare_data.__name__}.py --videos_dir <path/to/video/files> --data_dir <path/to/data/>'."
+            f"'{data_file}' not found! Check the filename or run 'python {prepare_data.__name__}.py --videos_dir <path/to/video/files> --data_dir <path/to/data/>' to create a data file."
         )
 
     yolo_model_name: str = opt.yolo_model if ".pt" in opt.yolo_model else opt.yolo_model + ".pt"
@@ -45,7 +46,7 @@ def main(opt):
             imgsz=imgsz,
             single_cls=single_cls,
             #    batch_size=16,
-            data=prepare_data.data_file)
+            data=data_file)
         t = res[3]
         shape = (3, imgsz, imgsz)
         with open(speed_file, "w") as file:
@@ -58,7 +59,7 @@ def main(opt):
         model.add_callback("on_val_end", yolov8_val_end)
         # Validate the model
         metrics = model.val(
-            data=prepare_data.data_file,
+            data=data_file,
             split=data_split,
             project=project,
             name=run_name,
@@ -110,6 +111,11 @@ def parse_opt(known=False):
                         type=str,
                         help='Task name. If omitted, yolo model name is used.',
                         default=None)
+    parser.add_argument(
+        '--test_data',
+        type=str,
+        help=f"Test yaml data file. Default: '{prepare_data.data_file}",
+        default=prepare_data.data_file)
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 

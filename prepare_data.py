@@ -23,25 +23,31 @@ def main(opt):
     val_size = opt.val_size
     test_size = opt.test_size
     sequential = opt.sequential
+    height_based = opt.height_based
 
-    if opt.source is not None:  # Source videos are provided, so the frames will be created in the 'image' folder.
-        source = os.path.abspath(opt.source)
-        is_source_dir = os.path.isdir(source)
-        is_source_file = os.path.isfile(source)
-        if not is_source_dir and not is_source_file:
-            sys.exit(f"There is no directory or file at path '{source}'!")
+    # Normalize train, val, test sizes so that they sum up to one.
+    sum = train_size + val_size + test_size
+    train_size /= sum
+    val_size /= sum
+    test_size /= sum
 
-        if is_source_dir:
-            all_files = os.listdir(source)
-            video_files = [
-                fname for fname in all_files if fname.lower().endswith('.mp4')
-            ]
-            if len(video_files) == 0:
-                sys.exit(
-                    f"The input directory '{source}' does not contain any MP4 videos!"
-                )
-        else:
-            video_files = [source]
+    source = os.path.abspath(opt.source)
+    is_source_dir = os.path.isdir(source)
+    is_source_file = os.path.isfile(source)
+    if not is_source_dir and not is_source_file:
+        sys.exit(f"There is no directory or file at path '{source}'!")
+
+    if is_source_dir:
+        all_files = os.listdir(source)
+        video_files = [
+            fname for fname in all_files if fname.lower().endswith('.mp4')
+        ]
+        if len(video_files) == 0:
+            sys.exit(
+                f"The input directory '{source}' does not contain any MP4 videos!"
+            )
+    else:
+        video_files = [source]
 
     # Create data directory if it does not exist.
     # 'images' and 'labels' folders and train, val and test list files will be created in this folder.
@@ -108,8 +114,10 @@ def main(opt):
 
                 if not os.path.isfile(frameFilePath):
                     image = vidcap.get_frame(frameNum / vidcap.fps)
-                    cv2.imwrite(frameFilePath, image) # cv2 is much faster than imageio in writing image files
-                    # imageio.imwrite(frameFilePath, image) 
+                    cv2.imwrite(
+                        frameFilePath, image
+                    )  # cv2 is much faster than imageio in writing image files
+                    # imageio.imwrite(frameFilePath, image)
                 else:
                     print(f'{frameFilePath} exists. Skipping...')
 
@@ -147,29 +155,77 @@ def main(opt):
 
     if test_videos is None:
         if not sequential:
-            images_train, images_val_test = train_test_split(
-                images, train_size=train_size)
+            if not height_based:
+                images_train, images_val_test = train_test_split(
+                    images, train_size=train_size)
 
-            images_val, images_test = train_test_split(images_val_test,
-                                                       test_size=test_size /
-                                                       (test_size + val_size))
+                images_val, images_test = train_test_split(
+                    images_val_test,
+                    test_size=test_size / (test_size + val_size))
+            else:
+                if not is_source_dir:
+                    sys.exit(
+                        f"'{source}' is not a directory! When 'height_based' option is selected, source must be a directory."
+                    )
+                h_info_files = glob.glob(os.path.join(source, "*.hinfo"))
+                height_info = dict()
+                for h_info_file in h_info_files:
+                    d = dict()
+                    with open(h_info_file, 'r') as f:
+                        for line in f:
+                            splits = line.strip().split(',')
+                            d[int(splits[0])] = float(splits[1])
+                    height_info[os.path.basename(h_info_file)] = d
+
+                h_groups = dict()
+                test_groups = dict()
+                train_val_groups = dict()
+
+                # height_ranges = [(0, 175), (175, 200), (200, 230), (230, 1000)]
+                height_ranges = [(0, 175), (175, 200), (200, 230), (230, 240),
+                                 (240, 1000)]
+                for height_range in height_ranges:
+                    h_groups[height_range] = []
+                    test_groups[height_range] = []
+                    train_val_groups[height_range] = []
+
+                for image in images:
+                    img_file_name = image.split('/')[2]
+                    splits = img_file_name.split('-frame')
+                    vid_file_name = splits[0]
+                    frame_num = int(splits[1].split('.')[0])
+                    height_file = vid_file_name.split('.')[0] + ".hinfo"
+                    height = height_info[height_file][frame_num]
+
+                    for height_range in height_ranges:
+                        if int(height) in range(*height_range):
+                            h_groups[height_range].append(image)
+
+                print("Height groups' length:")
+                for height_range in height_ranges:
+                    print(height_range, len(h_groups[height_range]))
+
+                images_train_val = []
+                for height_range in height_ranges:
+                    train_val_groups[height_range], test_groups[
+                        height_range] = train_test_split(
+                            h_groups[height_range], test_size=test_size)
+                    images_train_val += train_val_groups[height_range]
+                images_train, images_val = train_test_split(
+                    images_train_val,
+                    train_size=train_size / (train_size + val_size))
         else:
             images_train = []
             images_val = []
             images_test = []
-
-            # Normalize train, val, and test sizes to make sure they sum up to one
-            sum_sizes = train_size + val_size + test_size
-            train_size /= sum_sizes
-            val_size /= sum_sizes
-            test_size /= sum_sizes
 
             for annotated_video in annotated_videos:
                 all_video_frames = glob.glob(
                     os.path.join(os.path.relpath(imgs_dir, '.'),
                                  f"*{annotated_video}*"))
                 for i in range(len(all_video_frames)):
-                    all_video_frames[i] = "./images/" + os.path.basename(all_video_frames[i])
+                    all_video_frames[i] = "./images/" + os.path.basename(
+                        all_video_frames[i])
 
                 frames_count = len(all_video_frames)
                 train_index = 0
@@ -196,6 +252,18 @@ def main(opt):
         images_train, images_val = train_test_split(images_train_val,
                                                     train_size=opt.train_size)
 
+    data_count = len(images)
+    print()
+    print("Total frames =", data_count)
+    print(f"Train size = {round(len(images_train) / data_count * 100)}% = {len(images_train)} frames")
+    print(f"Val. size = {round(len(images_val) / data_count * 100)}% = {len(images_val)} frames")
+    test_len = 0
+    for height_range in height_ranges:
+        f_count = len(test_groups[height_range])
+        print(f"Test size {height_range} = {round(f_count / data_count * 100)}% = {f_count} frames")
+        test_len += len(test_groups[height_range])
+    print(f"Test size (total) = {round(test_len / data_count * 100)}% = {test_len} frames")
+
     trainFile = 'train.txt'
     valFile = 'val.txt'
     testFile = 'test.txt'
@@ -209,29 +277,62 @@ def main(opt):
         file.writelines('\n'.join(images_val))
     print(f"'{valFile}' created in '{data_dir}'.")
 
-    with open(os.path.join(data_dir, testFile), 'w') as file:
-        file.writelines('\n'.join(images_test))
-    print(f"'{testFile}' created in '{data_dir}'.")
+    if height_based:
+        test_files = {}
+        for height_range in height_ranges:
+            f_name = "height" + str(height_range) + "-" + testFile
+            with open(os.path.join(data_dir, f_name), 'w') as file:
+                file.writelines('\n'.join(test_groups[height_range]))
+            test_files[height_range] = f_name
+            print(f"'{f_name}' created in '{data_dir}'.")
+    else:
+        with open(os.path.join(data_dir, testFile), 'w') as file:
+            file.writelines('\n'.join(images_test))
+        print(f"'{testFile}' created in '{data_dir}'.")
 
-    data = {
-        'path': os.path.abspath(data_dir),  # dataset root dir
-        'train': trainFile,
-        'val': valFile,
-        'test': testFile,
+    if not height_based:
+        data = {
+            'path': os.path.abspath(data_dir),  # dataset root dir
+            'train': trainFile,
+            'val': valFile,
+            'test': testFile,
 
-        # Classes
-        'names': {
-            0: 'car'
-        },
-    }
+            # Classes
+            'names': {
+                0: 'car'
+            },
+        }
 
-    # Write YAML file
-    with open(data_file, "w") as file:
-        yaml.dump(data, file)
+        # Write YAML file
+        with open(data_file, "w") as file:
+            yaml.dump(data, file)
 
-    print(f"'{data_file}' created successfully in '{os.path.abspath('.')}'.\n")
+        print(
+            f"'{data_file}' created successfully in '{os.path.abspath('.')}'.\n"
+        )
+        data_stats.run()
+    else:
+        data_files = {}
+        for height_range in height_ranges:
+            f_name = test_files[height_range]
+            data = {
+                'path': os.path.abspath(data_dir),  # dataset root dir
+                'train': trainFile,
+                'val': valFile,
+                'test': f_name,
 
-    data_stats.run()
+                # Classes
+                'names': {
+                    0: 'car'
+                },
+            }
+
+            # Write YAML file
+            data_files[height_range] = "height" + str(
+                height_range) + "-" + data_file
+            with open(data_files[height_range], "w") as file:
+                yaml.dump(data, file)
+
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
@@ -243,9 +344,8 @@ def parse_opt(known=False):
         type=str,
         help=
         'A directory path containing video and corresponding annotation files or a path to a video file. \
-            \nIf specified, images and labels data are generated from annotated videos in the data directory. \
-            \nIf not, only data lists are updated based on the contents of the data directory.',
-        required=False)
+            \nImages and labels data are generated from annotated videos in the data directory.',
+        required=True)
     parser.add_argument('--data_dir',
                         type=str,
                         help='Data directory to store generated labeled data',
@@ -257,11 +357,11 @@ def parse_opt(known=False):
     parser.add_argument('--val_size',
                         type=float,
                         help='Validation set size ratio',
-                        default=0.2)
+                        default=0.15)
     parser.add_argument('--test_size',
                         type=float,
                         help='Test set size ratio',
-                        default=0.2)
+                        default=0.25)
     parser.add_argument(
         '--test_videos',
         type=str,
@@ -273,6 +373,10 @@ def parse_opt(known=False):
     parser.add_argument('--sequential',
                         action='store_true',
                         help='Create datasets sequentially not randomly.')
+
+    parser.add_argument('--height_based',
+                        action='store_true',
+                        help='Create datasets based on flight height.')
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
