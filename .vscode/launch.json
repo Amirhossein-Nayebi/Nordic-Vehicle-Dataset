@@ -66,10 +66,10 @@
             "request": "launch",
             "program": "train.py",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "args": [
                 "--epochs", "1",
-                "--yolo_model", "yolov8n",
+                "--yolo_model", "yolov5n",
                 "--name", "debug",
                 "--aug",
             ]
