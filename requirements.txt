@@ -4,3 +4,4 @@ clearml
 moviepy
 yolov5
 albumentations
+opencv-python
