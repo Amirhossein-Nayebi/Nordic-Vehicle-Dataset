@@ -111,7 +111,8 @@
             "justMyCode": true,
             "args": [
                 "--video_file",
-                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.mp4",
+                "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.mp4",
+                "--type", "test"
             ]
         },
     ]
