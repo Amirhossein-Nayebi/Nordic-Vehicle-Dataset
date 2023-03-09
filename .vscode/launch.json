@@ -57,7 +57,8 @@
             "args": [
                 "--source", "../datasets/SmartPlane/Videos/",
                 "--data_dir", "../datasets/SmartPlane/",
-                "--height_based",
+                "--test_videos",
+                "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.mp4",
             ]
         },
         {

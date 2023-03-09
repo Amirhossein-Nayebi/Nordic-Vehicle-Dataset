@@ -118,8 +118,8 @@ def main(opt):
                         frameFilePath, image
                     )  # cv2 is much faster than imageio in writing image files
                     # imageio.imwrite(frameFilePath, image)
-                else:
-                    print(f'{frameFilePath} exists. Skipping...')
+                # else:
+                #     print(f'{frameFilePath} exists. Skipping...')
 
                 if len(boxes) > 0:
                     lines = []
@@ -257,12 +257,15 @@ def main(opt):
     print("Total frames =", data_count)
     print(f"Train size = {round(len(images_train) / data_count * 100)}% = {len(images_train)} frames")
     print(f"Val. size = {round(len(images_val) / data_count * 100)}% = {len(images_val)} frames")
-    test_len = 0
-    for height_range in height_ranges:
-        f_count = len(test_groups[height_range])
-        print(f"Test size {height_range} = {round(f_count / data_count * 100)}% = {f_count} frames")
-        test_len += len(test_groups[height_range])
-    print(f"Test size (total) = {round(test_len / data_count * 100)}% = {test_len} frames")
+    if height_based:
+        test_len = 0
+        for height_range in height_ranges:
+            f_count = len(test_groups[height_range])
+            print(f"Test size {height_range} = {round(f_count / data_count * 100)}% = {f_count} frames")
+            test_len += len(test_groups[height_range])
+        print(f"Test size (total) = {round(test_len / data_count * 100)}% = {test_len} frames")
+    else:
+        print(f"Test size = {round(len(images_test) / data_count * 100)}% = {len(images_test)} frames")
 
     trainFile = 'train.txt'
     valFile = 'val.txt'
