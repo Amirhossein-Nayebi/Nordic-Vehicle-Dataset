@@ -9,6 +9,7 @@ import yaml
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import cv2
 import data_stats
+import shutil
 
 data_file = "smart_plane.yaml"
 
@@ -16,9 +17,9 @@ data_file = "smart_plane.yaml"
 def main(opt):
 
     print()
-    video_files = []
+    ann_files = []
 
-    test_videos = opt.test_videos  # Videos which will be used for creating test frames
+    test_files = opt.test_files  # Annotation files which will be used for creating test frames
     train_size = opt.train_size
     val_size = opt.val_size
     test_size = opt.test_size
@@ -35,19 +36,20 @@ def main(opt):
     is_source_dir = os.path.isdir(source)
     is_source_file = os.path.isfile(source)
     if not is_source_dir and not is_source_file:
-        sys.exit(f"There is no directory or file at path '{source}'!")
+        sys.exit(f"\nThere is no directory or file at path '{source}'!")
 
     if is_source_dir:
         all_files = os.listdir(source)
-        video_files = [
-            fname for fname in all_files if fname.lower().endswith('.mp4')
+        ann_files = [
+            os.path.join(source, fname) for fname in all_files
+            if fname.lower().endswith('.xml')
         ]
-        if len(video_files) == 0:
+        if len(ann_files) == 0:
             sys.exit(
-                f"The input directory '{source}' does not contain any MP4 videos!"
+                f"\nThe input directory '{source}' does not contain any '.xml' annotation files!"
             )
     else:
-        video_files = [source]
+        ann_files = [source]
 
     # Create data directory if it does not exist.
     # 'images' and 'labels' folders and train, val and test list files will be created in this folder.
@@ -68,56 +70,74 @@ def main(opt):
         if not os.path.isdir(lbs_dir):
             os.makedirs(lbs_dir)
     except Exception as e:
-        sys.exit(f"Failed to create output directories!\r\n{e}")
+        sys.exit(f"\nFailed to create output directories!\r\n{e}")
 
-    annotated_videos = []  # List of annotated videos
+    if len(ann_files) > 0:
+        for annotation_file_path in tqdm(ann_files):
 
-    if len(video_files) > 0:
-        for video_file in tqdm(video_files):
-            if is_source_dir:
-                video_file_path = os.path.join(source, video_file)
-                annotation_file_path = os.path.join(
-                    source,
-                    os.path.splitext(video_file)[0] + '.xml')
+            ann_file_basename = os.path.splitext(
+                os.path.basename(annotation_file_path))[0]
+            print(f"\n\nRetrieving frames for '{ann_file_basename}'...")
+
+            video_file_path = None
+            similar_files = glob.glob(
+                os.path.splitext(annotation_file_path)[0] + ".*")
+            for file in similar_files:
+                if '.mp4' in file.lower():
+                    video_file_path = file
+                    break
+
+            if video_file_path is None:
+                frames_dir = os.path.join(
+                    os.path.dirname(annotation_file_path),
+                    os.path.splitext(
+                        os.path.basename(annotation_file_path))[0])
+                print(
+                    f"No video file found! Searching for extracted frames in '{frames_dir} directory' ..."
+                )
+                if not os.path.isdir(frames_dir):
+                    print(f"\nFailed to find '{frames_dir}' directory!")
+                    continue
+
+            if video_file_path is not None:
+                vidcap = VideoFileClip(video_file_path)
+
+                # Get the duration of the video
+                duration = vidcap.duration
+
+                # Calculate the total number of frames
+                frames_count = int(duration * vidcap.fps)
+                frame_num_len = len(str(frames_count))
             else:
-                video_file_path = video_file
-                annotation_file_path = os.path.splitext(
-                    video_file_path)[0] + '.xml'
-
-            if not os.path.isfile(annotation_file_path):
-                print(f"Annotation file '{annotation_file_path}' not found!")
-                continue
-
-            vidcap = VideoFileClip(video_file_path)
-
-            # Get the duration of the video
-            duration = vidcap.duration
-
-            # Calculate the total number of frames
-            frames_count = int(duration * vidcap.fps)
-            frame_num_len = len(str(frames_count))
+                frame_num_len, frame_ext = utility.GetFramesInfo(frames_dir)
+                if frame_num_len == 0:
+                    sys.exit("Can't find frames!")
 
             # Extract bounding boxes from annotation file
             boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
                 annotation_file_path)
 
-            videoFileBaseName = os.path.basename(video_file_path)
-            annotated_videos.append(videoFileBaseName)
-
-            print(f'Retrieving frames from {videoFileBaseName}...')
-
+            
             for frameNum, boxes in tqdm(boxesPerFrame.items()):
                 frameNumberStr = format(frameNum, f'0{frame_num_len}d')
                 frameFilePath = os.path.join(
                     imgs_dir,
-                    videoFileBaseName + f"-frame{frameNumberStr}.png")
+                    ann_file_basename + f"-frame{frameNumberStr}.png")
 
-                if not os.path.isfile(frameFilePath):
-                    image = vidcap.get_frame(frameNum / vidcap.fps)
-                    cv2.imwrite(
-                        frameFilePath, image
-                    )  # cv2 is much faster than imageio in writing image files
-                    # imageio.imwrite(frameFilePath, image)
+                if not os.path.isfile(
+                        frameFilePath
+                ):  # The frame is not in the data directory, so try to retrieve it
+                    if video_file_path is not None:
+                        image = vidcap.get_frame(frameNum / vidcap.fps)
+                        cv2.imwrite(
+                            frameFilePath, image
+                        )  # cv2 is much faster than imageio in writing image files
+                        # imageio.imwrite(frameFilePath, image)
+                    else:
+                        src_frame_file_name = f"frame_{frameNum:0{frame_num_len}d}{frame_ext}"
+                        src_frame_file_path = os.path.join(
+                            frames_dir, src_frame_file_name)
+                        shutil.copy(src_frame_file_path, frameFilePath)
                 # else:
                 #     print(f'{frameFilePath} exists. Skipping...')
 
@@ -144,16 +164,14 @@ def main(opt):
     # labels = glob.glob(os.path.join(os.path.relpath(lbs_dir, '.'), "*.txt"))
 
     if len(images) == 0:
-        sys.exit(f"No image found in '{data_dir}/images'. \
-            \nMake sure each video has a corresponding .xml annotation file.\
-            \nIf you have not extracted images from annotated videos yet, please rerun the script with \
-                \n--videos_dir option to generate images and labels directories."
+        sys.exit(f"No images found in '{data_dir}/images'. \
+            \nMake sure each '.xml' annotation file has a corresponding video file or extracted frames directory."
                  )
 
     for i in range(len(images)):
         images[i] = "./images/" + os.path.basename(images[i])
 
-    if test_videos is None:
+    if test_files is None:
         if not sequential:
             if not height_based:
                 images_train, images_val_test = train_test_split(
@@ -192,9 +210,12 @@ def main(opt):
                 for image in images:
                     img_file_name = image.split('/')[2]
                     splits = img_file_name.split('-frame')
-                    vid_file_name = splits[0]
+                    vid_file_name_without_ext = splits[0]
                     frame_num = int(splits[1].split('.')[0])
-                    height_file = vid_file_name.split('.')[0] + ".hinfo"
+                    height_file = vid_file_name_without_ext + ".hinfo"
+                    if height_file not in height_info:
+                        print(f"Warning! '{height_file}' not found.")
+                        continue
                     height = height_info[height_file][frame_num]
 
                     for height_range in height_ranges:
@@ -207,6 +228,8 @@ def main(opt):
 
                 images_train_val = []
                 for height_range in height_ranges:
+                    if len(h_groups[height_range]) == 0:
+                        continue
                     train_val_groups[height_range], test_groups[
                         height_range] = train_test_split(
                             h_groups[height_range], test_size=test_size)
@@ -219,10 +242,13 @@ def main(opt):
             images_val = []
             images_test = []
 
-            for annotated_video in annotated_videos:
+            for ann_file in ann_files:
+                file_base = os.path.splitext(os.path.basename(ann_file))[0]
                 all_video_frames = glob.glob(
                     os.path.join(os.path.relpath(imgs_dir, '.'),
-                                 f"*{annotated_video}*"))
+                                 f"*{file_base}*"))
+                if len(all_video_frames) == 0:
+                    continue
                 for i in range(len(all_video_frames)):
                     all_video_frames[i] = "./images/" + os.path.basename(
                         all_video_frames[i])
@@ -240,12 +266,13 @@ def main(opt):
         images_test = []
         images_train_val = []
         for image_path in images:
-            is_from_test_video = False
-            for test_video in test_videos:
-                if os.path.basename(test_video) in image_path:
-                    is_from_test_video = True
+            is_from_test_file = False
+            for ann_file in test_files:
+                base_name = os.path.splitext(os.path.basename(ann_file))[0]
+                if base_name in image_path:
+                    is_from_test_file = True
                     break
-            if is_from_test_video:
+            if is_from_test_file:
                 images_test.append(image_path)
             else:
                 images_train_val.append(image_path)
@@ -255,17 +282,27 @@ def main(opt):
     data_count = len(images)
     print()
     print("Total frames =", data_count)
-    print(f"Train size = {round(len(images_train) / data_count * 100)}% = {len(images_train)} frames")
-    print(f"Val. size = {round(len(images_val) / data_count * 100)}% = {len(images_val)} frames")
+    print(
+        f"Train size = {round(len(images_train) / data_count * 100)}% = {len(images_train)} frames"
+    )
+    print(
+        f"Val. size = {round(len(images_val) / data_count * 100)}% = {len(images_val)} frames"
+    )
     if height_based:
         test_len = 0
         for height_range in height_ranges:
             f_count = len(test_groups[height_range])
-            print(f"Test size {height_range} = {round(f_count / data_count * 100)}% = {f_count} frames")
+            print(
+                f"Test size {height_range} = {round(f_count / data_count * 100)}% = {f_count} frames"
+            )
             test_len += len(test_groups[height_range])
-        print(f"Test size (total) = {round(test_len / data_count * 100)}% = {test_len} frames")
+        print(
+            f"Test size (total) = {round(test_len / data_count * 100)}% = {test_len} frames"
+        )
     else:
-        print(f"Test size = {round(len(images_test) / data_count * 100)}% = {len(images_test)} frames")
+        print(
+            f"Test size = {round(len(images_test) / data_count * 100)}% = {len(images_test)} frames"
+        )
 
     trainFile = 'train.txt'
     valFile = 'val.txt'
@@ -288,66 +325,33 @@ def main(opt):
                 file.writelines('\n'.join(test_groups[height_range]))
             test_files[height_range] = f_name
             print(f"'{f_name}' created in '{data_dir}'.")
+        print()
+        data_files = {}
+        for height_range in height_ranges:
+            test_file = test_files[height_range]
+            data_files[height_range] = "height" + str(
+                height_range) + "-" + data_file
+            utility.WriteDataYAMLFile(data_dir, trainFile, valFile, test_file, data_files[height_range])
+            data_stats.run(data_file=data_files[height_range])
     else:
         with open(os.path.join(data_dir, testFile), 'w') as file:
             file.writelines('\n'.join(images_test))
         print(f"'{testFile}' created in '{data_dir}'.")
-
-    if not height_based:
-        data = {
-            'path': os.path.abspath(data_dir),  # dataset root dir
-            'train': trainFile,
-            'val': valFile,
-            'test': testFile,
-
-            # Classes
-            'names': {
-                0: 'car'
-            },
-        }
-
-        # Write YAML file
-        with open(data_file, "w") as file:
-            yaml.dump(data, file)
-
-        print(
-            f"'{data_file}' created successfully in '{os.path.abspath('.')}'.\n"
-        )
-        data_stats.run()
-    else:
-        data_files = {}
-        for height_range in height_ranges:
-            f_name = test_files[height_range]
-            data = {
-                'path': os.path.abspath(data_dir),  # dataset root dir
-                'train': trainFile,
-                'val': valFile,
-                'test': f_name,
-
-                # Classes
-                'names': {
-                    0: 'car'
-                },
-            }
-
-            # Write YAML file
-            data_files[height_range] = "height" + str(
-                height_range) + "-" + data_file
-            with open(data_files[height_range], "w") as file:
-                yaml.dump(data, file)
+        utility.WriteDataYAMLFile(data_dir, trainFile, valFile, testFile, data_file)
+        data_stats.run(data_file=data_file)
 
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
         description=
         'This python script generates train, validation and test sets for \
-            YOLO network using videos and their annotation files.')
+            YOLO network using annotation files.')
     parser.add_argument(
         '--source',
         type=str,
         help=
-        'A directory path containing video and corresponding annotation files or a path to a video file. \
-            \nImages and labels data are generated from annotated videos in the data directory.',
+        "A directory path that contains annotation files and their corresponding videos or frames. It can also refer to a single annotation file. \
+            \nThe images and label data will be generated in the 'data_dir' directory.",
         required=True)
     parser.add_argument('--data_dir',
                         type=str,
@@ -366,11 +370,11 @@ def parse_opt(known=False):
                         help='Test set size ratio',
                         default=0.25)
     parser.add_argument(
-        '--test_videos',
+        '--test_files',
         type=str,
         nargs="+",
         help=
-        'List of test video files separated by spaces. If it is not provided, test data will be created randomly from all videos.',
+        'List of test annotation files separated by spaces. If it is not provided, test data will be created randomly from all annotation files.',
         required=False)
 
     parser.add_argument('--sequential',

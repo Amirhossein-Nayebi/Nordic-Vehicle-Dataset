@@ -26,21 +26,13 @@ def main(opt):
             f"No video file found! Searching for extracted frames in '{images_dir}' ..."
         )
         if not os.path.isdir(images_dir):
-            sys.exit(f"Failed to find '{images_dir}'!")
+            sys.exit(f"Failed to find '{images_dir}' directory!")
 
     # Load the video
     if vid_file is not None:
         vidcap = VideoFileClip(vid_file)
     else:
-        # Get list of all files in the directory
-        files = os.listdir(images_dir)
-        frame_num_len = 0
-        frame_ext = ""
-        for file in files:
-            if '.png' in file.lower():
-                frame_num_len = len(os.path.splitext(file)[0].split('_')[1])
-                frame_ext = os.path.splitext(file)[1]
-                break
+        frame_num_len, frame_ext = utility.GetFramesInfo(images_dir)
         if frame_num_len == 0:
             sys.exit("Can't find frames!")
 

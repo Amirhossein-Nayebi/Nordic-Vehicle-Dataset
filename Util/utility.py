@@ -6,6 +6,7 @@ import sys
 import os
 import xml.etree.ElementTree as et
 import math
+import yaml
 
 
 class Colors:
@@ -29,6 +30,40 @@ class Colors:
 
 
 colors = Colors()  # create instance for 'from utils.plots import colors'
+
+
+def WriteDataYAMLFile(data_dir, train_file, val_file, test_file, data_file):
+    data = {
+        'path': os.path.abspath(data_dir),  # dataset root dir
+        'train': train_file,
+        'val': val_file,
+        'test': test_file,
+
+        # Classes
+        'names': {
+            0: 'car'
+        },
+    }
+
+    # Write YAML file
+    with open(data_file, "w") as file:
+        yaml.dump(data, file)
+
+    print(f"'{data_file}' created successfully in '{os.path.abspath('.')}'.\n")
+
+
+def GetFramesInfo(frames_dir: str):
+    # Get list of all files in the directory
+    files = os.listdir(frames_dir)
+    frame_num_len = 0
+    frame_ext = ""
+    for file in files:
+        ext = os.path.splitext(file)[1]
+        if '.png' == ext.lower():
+            frame_num_len = len(os.path.splitext(file)[0].split('_')[1])
+            frame_ext = ext
+            break
+    return frame_num_len, frame_ext
 
 
 # Displays image and wait for the specified delay (ms).

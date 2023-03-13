@@ -7,12 +7,13 @@ from tqdm import tqdm
 
 
 def main(opt):
-    if not os.path.isfile(prepare_data.data_file):
+    data_file = opt.data_file
+    if not os.path.isfile(data_file):
         sys.exit(
-            f"{prepare_data.data_file} not found! Have you run 'prepare_data.py'?"
+            f"{data_file} not found! Have you run 'prepare_data.py'?"
         )
 
-    with open(prepare_data.data_file) as file:
+    with open(data_file) as file:
         data = yaml.safe_load(file)
 
     stats: dict = {}
@@ -53,6 +54,10 @@ def parse_opt(known=False):
         description=
         "\nThis python script generates data statistics. You have to run 'prepare_data.py' first."
     )
+    parser.add_argument('data_file',
+                        type=str,
+                        help='The data file.')
+    
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
 

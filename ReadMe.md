@@ -61,9 +61,14 @@ After running the script, the frames with augmented annotated data will be displ
 ### **Prepare data**
 To prepare the data, we need to extract frames from the videos and convert the annotations for each frame into the YOLO format. Also, we need to split the data into training, validation and test sets. This can be accomplished using the ```prepare_data.py``` script:
 
-    python prepare_data.py [--source VIDEO_DIR or VIDEO_FILE] [--data_dir data]
+    python prepare_data.py [--source ANNOTATIONS_DIR or ANNOTATION_FILE] [--data_dir data]
 
-This will create a ```data``` directory and store all of the extracted frames and label data inside it. It's important to note that as the ```source```, you can provide either a directory containing both video files and annotation files or a single video file that has an annotation file with the same name in the same directory.
+This will create a ```data``` directory and store all of the extracted frames and label data inside it. 
+
+As the ```source```, you can provide either of the following:
+
+* A directory containing annotation files and their corresponding videos/frames with the same name alongside themselves.
+* A single annotation file that has a video file or frames directory with the same name alongside itself.
 
 ### **Visualize Prepared Data**
 You can visualize all of the prepared data or only the data created for a specific video using the ```view_data.py``` script as follows:

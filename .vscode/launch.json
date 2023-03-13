@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Data Statistics",
+            "type": "python",
+            "request": "launch",
+            "program": "data_stats.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "./height(175, 200)-smart_plane.yaml"
+            ]
+        },
+        {
             "name": "Extract Frames",
             "type": "python",
             "request": "launch",
@@ -29,8 +40,8 @@
             "program": "estimate_flight_height.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
-                "../datasets/SmartPlane/Videos/"
+            "args": [
+                "../datasets/SmartPlane/Videos/test"
             ]
         },
         {
@@ -55,10 +66,9 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--source", "../datasets/SmartPlane/Videos/",
-                "--data_dir", "../datasets/SmartPlane/",
-                "--test_videos",
-                "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.mp4",
+                "--source", "../datasets/SmartPlane/Videos/test/",
+                "--data_dir", "../datasets/SmartPlane/test",
+                "--height_based",
             ]
         },
         {
@@ -69,9 +79,12 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--epochs", "1",
-                "--yolo_model", "yolov5n",
-                "--name", "debug",
+                "--epochs",
+                "1",
+                "--yolo_model",
+                "yolov5n",
+                "--name",
+                "debug",
                 "--aug",
             ]
         },
@@ -99,7 +112,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.xml",
+                "../datasets/SmartPlane/Videos/2022-12-23 Bjenberg 02_stabilized.xml",
             ]
         },
         {
@@ -112,7 +125,8 @@
             "args": [
                 "--video_file",
                 "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.mp4",
-                "--type", "test"
+                "--type",
+                "test"
             ]
         },
     ]

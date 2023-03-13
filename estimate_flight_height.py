@@ -38,9 +38,9 @@ def main(opt):
         with open(video_data_file, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
-                if row[0].lower() + ".xml" == os.path.basename(
+                if row[1].lower() + ".xml" == os.path.basename(
                         ann_file).lower():
-                    height_str = row[1].replace('m', '').strip()
+                    height_str = row[2].replace('m', '').strip()
                     height_splits = height_str.split('-')
                     max_height = float(height_splits[-1])
                     break
