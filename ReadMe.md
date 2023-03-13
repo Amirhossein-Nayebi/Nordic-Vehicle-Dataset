@@ -54,7 +54,7 @@ Before training/validation/test data is prepared, it's crucial to ensure that th
 
     python view_annotations.py [path/to/an/annotation/file]
 
-It's worth mentioning that there should be a video file with the same name as the annotation file located in the same directory.
+It's worth mentioning that there should be a video file with the same name as the annotation file located in the same directory or a directory containing extracted frames with the same name as the annotation file, located alongside the annotation file.
 
 After running the script, the frames with augmented annotated data will be displayed one after another by pressing a key. You can halt the display process by pressing the ```'q'``` key.
 

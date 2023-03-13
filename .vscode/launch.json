@@ -99,7 +99,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "../datasets/SmartPlane/Videos/2022-12-23 Asjo 01_HD 5x stab.xml",
+                "../datasets/SmartPlane/Videos/2022-12-02 Asjo 01_stabilized.xml",
             ]
         },
         {

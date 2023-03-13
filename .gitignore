@@ -1,7 +1,7 @@
 ExtractFrames/Results/
 TestYOLOV5/runs/
 Videos/
-test/
+test*
 /__pycache__/
 */__pycache__/*
 runs/
