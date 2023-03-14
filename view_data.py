@@ -8,17 +8,18 @@ from Util import utility
 
 
 def main(opt):
-    video_file = opt.video_file
-    video_file_basename = None
-    if video_file is not None:
-        video_file_basename = os.path.basename(video_file)
+    data_file = opt.data_file
+    ann_file = opt.annotation_file
+    ann_file_basename = None
+    if ann_file is not None:
+        ann_file_basename = os.path.splitext(os.path.basename(ann_file))[0]
 
-    if not os.path.isfile(prepare_data.data_file):
+    if not os.path.isfile(data_file):
         sys.exit(
-            f"{prepare_data.data_file} not found! Have you run 'prepare_data.py'?"
+            f"{data_file} not found! Have you run 'prepare_data.py'?"
         )
 
-    with open(prepare_data.data_file) as file:
+    with open(data_file) as file:
         data = yaml.safe_load(file)
 
     data_type = opt.type.lower()
@@ -28,7 +29,7 @@ def main(opt):
     with open(list_file, "r") as file:
         lines = file.readlines()
         for img_path in lines:
-            if video_file_basename is not None and video_file_basename not in img_path:
+            if ann_file_basename is not None and ann_file_basename not in img_path:
                 continue
             img_full_path = os.path.join(data_path, img_path.strip())
             lbl_full_path = img_full_path.replace('images', 'labels').replace(
@@ -63,11 +64,18 @@ def parse_opt(known=False):
         default='train',
     )
     parser.add_argument(
-        '--video_file',
+        '--annotation_file',
         type=str,
         help=
-        'The video file name. If provided, only the data related to this video file will be displayed.',
+        'The annotation file name. If provided, only the data related to this annotation file will be displayed.',
         required=False)
+    
+    parser.add_argument(
+        '--data_file',
+        type=str,
+        help=f"yaml data file. Default: '{prepare_data.data_file}",
+        default=prepare_data.data_file)
+
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
 

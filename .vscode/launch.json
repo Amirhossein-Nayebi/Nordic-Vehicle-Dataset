@@ -123,10 +123,9 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--video_file",
-                "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.mp4",
-                "--type",
-                "test"
+                "--type", "test",
+                "--data_file", "./smart_plane.yaml",
+                "--annotation_file", "../datasets/SmartPlane/Videos/2022-12-23 Bjenberg 02_stabilized.xml",
             ]
         },
     ]
