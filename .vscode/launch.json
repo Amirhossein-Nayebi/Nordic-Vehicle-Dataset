@@ -12,7 +12,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "./height(175, 200)-smart_plane.yaml"
+                "smart_plane.yaml",
+                "--filter", "2022-12-03 Nyland 01_stabilized",
             ]
         },
         {
@@ -66,9 +67,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--source", "../datasets/SmartPlane/Videos/test/",
-                "--data_dir", "../datasets/SmartPlane/test",
-                "--height_based",
+                "--source", "../datasets/SmartPlane/Videos/",
+                "--data_dir", "../datasets/SmartPlane/", 
             ]
         },
         {
