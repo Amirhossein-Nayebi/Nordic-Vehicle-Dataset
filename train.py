@@ -87,8 +87,8 @@ def parse_opt(known=False):
         '--batch',
         type=int,
         help=
-        'Training batch size. If you get out of memory error try to reduce the bach value. (default = 10)',
-        default=10)
+        'Training batch size. If you get out of memory error try to reduce the bach value. (default = 8)',
+        default=8)
 
     parser.add_argument('--yolo_model',
                         type=str,
