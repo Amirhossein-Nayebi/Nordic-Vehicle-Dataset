@@ -117,7 +117,6 @@ def main(opt):
             boxesPerFrame, width, height = utility.AnnotationBox.GetBoxesFromXMLAnnotationFile(
                 annotation_file_path)
 
-            
             for frameNum, boxes in tqdm(boxesPerFrame.items()):
                 frameNumberStr = format(frameNum, f'0{frame_num_len}d')
                 frameFilePath = os.path.join(
@@ -277,7 +276,8 @@ def main(opt):
             else:
                 images_train_val.append(image_path)
         images_train, images_val = train_test_split(images_train_val,
-                                                    train_size=opt.train_size)
+                                                    train_size=train_size /
+                                                    (train_size + val_size))
 
     data_count = len(images)
     print()
@@ -331,13 +331,15 @@ def main(opt):
             test_file = test_files[height_range]
             data_files[height_range] = "height" + str(
                 height_range) + "-" + data_file
-            utility.WriteDataYAMLFile(data_dir, trainFile, valFile, test_file, data_files[height_range])
+            utility.WriteDataYAMLFile(data_dir, trainFile, valFile, test_file,
+                                      data_files[height_range])
             data_stats.run(data_file=data_files[height_range])
     else:
         with open(os.path.join(data_dir, testFile), 'w') as file:
             file.writelines('\n'.join(images_test))
         print(f"'{testFile}' created in '{data_dir}'.")
-        utility.WriteDataYAMLFile(data_dir, trainFile, valFile, testFile, data_file)
+        utility.WriteDataYAMLFile(data_dir, trainFile, valFile, testFile,
+                                  data_file)
         data_stats.run(data_file=data_file)
 
 

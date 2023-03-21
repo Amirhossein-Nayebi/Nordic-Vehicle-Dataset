@@ -69,6 +69,7 @@
             "args": [
                 "--source", "../datasets/SmartPlane/Videos/",
                 "--data_dir", "../datasets/SmartPlane/", 
+                "--test_files", "../datasets/SmartPlane/Videos/2022-12-23 Bjenberg 02_stabilized.xml", "../datasets/SmartPlane/Videos/2022-12-03 Nyland 01_stabilized.xml"
             ]
         },
         {
