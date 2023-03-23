@@ -80,13 +80,9 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--epochs",
-                "1",
-                "--yolo_model",
-                "yolov5n",
-                "--name",
-                "debug",
-                "--aug",
+                "--epochs", "1",
+                "--yolo_model", "yolov5n",
+                "--name", "debug",
             ]
         },
         {
