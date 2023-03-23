@@ -20,7 +20,6 @@ available_models = [
     'yolov8x',
 ]
 
-hyp_file = './hyp.yaml'
 
 
 def main(opt):
@@ -35,6 +34,8 @@ def main(opt):
     batch_size = opt.batch
     clearml.browser_login()
     apply_augmentation = opt.aug
+        
+    hyp_file = './hyp-aug.yaml' if apply_augmentation else './hyp-no-aug.yaml'
 
     if "yolov5" in yolo_model_name.lower():
         params = {
@@ -46,22 +47,20 @@ def main(opt):
             "project": project_name,
             "name": exp_name
         }
-        if apply_augmentation:
-            params['hyp'] = hyp_file
+        params['hyp'] = hyp_file
         yolov5.train.run(**params)
     elif "yolov8" in yolo_model_name.lower():
         try:
             model = yolov8(yolo_model_name)
             params = dict()
-            if apply_augmentation:
-                with open(hyp_file) as file:
-                    params = yaml.safe_load(file)
-                    # These parameters are not used in YOLOv8:
-                    del params['obj_pw']
-                    del params['anchor_t']
-                    del params['iou_t']
-                    del params['cls_pw']
-                    del params['obj']
+            with open(hyp_file) as file:
+                params = yaml.safe_load(file)
+                # These parameters are not used in YOLOv8:
+                del params['obj_pw']
+                del params['anchor_t']
+                del params['iou_t']
+                del params['cls_pw']
+                del params['obj']
             params.update({
                 'batch': batch_size,
                 'imgsz': 1920,

@@ -81,8 +81,9 @@
             "justMyCode": false,
             "args": [
                 "--epochs", "1",
-                "--yolo_model", "yolov5n",
+                "--yolo_model", "yolov8s",
                 "--name", "debug",
+                // "--aug",
             ]
         },
         {

@@ -28,8 +28,11 @@ class Albumentations:
             import albumentations as A
             check_version(A.__version__, '1.0.3', hard=True)  # version requirement
 
+            # Set p to 0.7 to enable Albumentation
+            p = 0.0
+
             T = [
-                ############### Default values #################
+                ############### Default values leave it commented #################
                 # A.RandomResizedCrop(height=size, width=size, scale=(0.8, 1.0), ratio=(0.9, 1.11), p=0.0),
                 # A.Blur(p=0.01),
                 # A.MedianBlur(p=0.01),
@@ -40,18 +43,18 @@ class Albumentations:
                 # A.ImageCompression(quality_lower=75, p=0.0)]  # transforms
                 ################################################
 
-                A.RandomResizedCrop(height=size, width=size, scale=(0.8, 1.0), ratio=(0.9, 1.11), p=0.7),
-                A.Blur(p=0.7),
-                A.MedianBlur(p=0.7),
-                A.ToGray(p=0.7),
-                A.CLAHE(p=0.7),
-                A.RandomBrightnessContrast(p=0.7),
-                A.RandomGamma(p=0.7),
-                A.ImageCompression(quality_lower=75, p=0.7),
-                A.ColorJitter(p=0.7),
-                A.RandomShadow(p=0.7),
-                A.Solarize(p=0.7),
-                A.RGBShift(p=0.7),
+                A.Blur(p=p),
+                A.MedianBlur(p=p),
+                A.ToGray(p=p),
+                A.CLAHE(p=p),
+                A.RandomBrightnessContrast(p=p),
+                A.RandomGamma(p=p),
+                A.ImageCompression(quality_lower=75, p=p),
+                A.ColorJitter(p=p),
+                A.RandomShadow(p=p),
+                A.Solarize(p=p),
+                A.RGBShift(p=p),
+
             ]  # transforms
             self.transform = A.Compose(T, bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
 
