@@ -68,8 +68,10 @@ def GetFramesInfo(frames_dir: str):
 
 # Displays image and wait for the specified delay (ms).
 # Terminates the execution if 'exitChar' is pressed during the delay.
-def DisplayImage(title: str, image: np.ndarray, delay: int,
-                 exitChar: str) -> None:
+def DisplayImage(title: str,
+                 image: np.ndarray,
+                 delay: int = 0,
+                 exitChar: str = 'q') -> None:
     cv2.imshow(title, image)
     if cv2.waitKey(delay) == ord(exitChar):
         sys.exit()
