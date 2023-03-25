@@ -1,41 +1,14 @@
-import prepare_data
 import os
-import sys
-import yaml
-from tqdm import tqdm
-import detect
-import subprocess
 
-data_file = prepare_data.data_file
+baseline_folder = "./runs/results/paper/new/detect/yolov5s"
+comparison_folder = "./runs/results/paper/new/detect/yolov8s"
 
-if not os.path.isfile(data_file):
-    sys.exit(f"{data_file} not found! Have you run 'prepare_data.py'?")
+baseline_files = os.listdir(os.path.join(baseline_folder, 'labels'))
+comparison_files = os.listdir(os.path.join(comparison_folder, 'labels'))
 
-with open(data_file) as file:
-    data = yaml.safe_load(file)
-
-path = data['path']
-test_file_name = data['test']
-
-test_file = os.path.join(path, test_file_name)
-models_to_compare = [
-    './runs/results/Paper - 3 Train - 2 Test Videos/Without Augmentation/train/yolov5s/weights/best.pt'
-    './runs/results/Paper - 3 Train - 2 Test Videos/Without Augmentation/train/yolov8s/weights/best.pt'
-]
-
-
-# run a command and capture its output
-result = subprocess.run(['echo', 'hello', 'world'], stdout=subprocess.PIPE)
-
-# print the output
-print(result.stdout.decode('utf-8'))
-
-
-with open(test_file, "r") as file:
-    lines = file.readlines()
-    for img_path in tqdm(lines):
-        img_path = os.path.join(path, img_path)
-        for model in models_to_compare:
-            opt.yolo_model = model
-            opt.source = img_path
-            detect.main(opt)
+for comp_file in comparison_files:
+    if comp_file not in baseline_files:
+        print(comp_file)
+        img_file = os.path.basename(comp_file)
+        img_file = os.path.splitext(img_file)[0] + ".png"
+        img_file = os.path.join("../datasets/SmartPlane/images/", img_file)

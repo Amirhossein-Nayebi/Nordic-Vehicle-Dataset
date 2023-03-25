@@ -50,7 +50,7 @@ class Albumentations:
                 A.RandomBrightnessContrast(p=p),
                 A.RandomGamma(p=p),
                 A.ImageCompression(quality_lower=75, p=p),
-                A.ColorJitter(p=p),
+                # A.ColorJitter(p=p),
                 A.RandomShadow(p=p),
                 A.Solarize(p=p),
                 A.RGBShift(p=p),

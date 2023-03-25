@@ -54,9 +54,9 @@
             "justMyCode": true,
             "args": [
                 "--yolo_model",
-                "./runs/train/2022-02-17/yolov8n/weights/best.pt",
-                "--name",
-                "debug"
+                "./runs/results/paper/new/train/without_aug/yolov8s/weights/best.pt",
+                "--name", "yolov8s",
+                "--project", "runs/val/paper/without_aug"
             ]
         },
         {
@@ -80,10 +80,11 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--epochs", "1",
                 "--yolo_model", "yolov8s",
-                "--name", "debug",
-                // "--aug",
+                "--aug",
+                "--batch", "16",
+                "--project", "runs/with_aug",
+                "--name", "yolov8s",
             ]
         },
         {

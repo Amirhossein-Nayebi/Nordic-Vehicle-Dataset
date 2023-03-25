@@ -90,10 +90,10 @@ def yolov8_val_end(validator):
             f"mAP50-95: {validator.metrics.results_dict['metrics/mAP50-95(B)']:.3f}\n"
         )
         file.write("Speed:\n")
-        file.write(f"    Pre-process: {validator.speed[0]:.1f}ms\n")
-        file.write(f"    Inference: {validator.speed[1]:.1f}ms\n")
-        file.write(f"    Loss: {validator.speed[2]:.1f}ms\n")
-        file.write(f"    Post-process:: {validator.speed[3]:.1f}ms\n")
+        file.write(f"    Pre-process: {validator.speed['preprocess']:.1f}ms\n")
+        file.write(f"    Inference: {validator.speed['inference']:.1f}ms\n")
+        file.write(f"    Loss: {validator.speed['loss']:.1f}ms\n")
+        file.write(f"    Post-process:: {validator.speed['postprocess']:.1f}ms\n")
 
 
 def parse_opt(known=False):
