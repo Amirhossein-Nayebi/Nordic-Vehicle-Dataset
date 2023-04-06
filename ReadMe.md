@@ -1,4 +1,4 @@
-# **Bird View Car Detection Using YOLO**
+# **Nordic Vehicle Dataset**
 ## **Setup**
 Verify that Python is installed and the version is between 3.8 (inclusive) and 3.11 (exclusive).
 
