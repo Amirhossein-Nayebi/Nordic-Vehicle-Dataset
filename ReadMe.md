@@ -16,7 +16,7 @@ Extract the source code zip file to a directory (```source directory```). Create
 
 Navigate to the ```source directory``` by changing the current directory:
 
-    cd Smart-Plane-master
+    cd Nordic-Vehicle-Dataset
 
 Create and activate a virtual environment:
 
