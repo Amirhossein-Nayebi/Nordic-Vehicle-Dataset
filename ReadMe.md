@@ -1,4 +1,10 @@
-# **Bird View Car Detection Using YOLO**
+# **Nordic Vehicle Dataset**
+You can find the NVD dataset here:
+https://nvd.ltu-ai.dev/
+
+This repository contains code for fine-tuning YOLOv5 and YOLOv8 on the NVD dataset. Below, you can find setup instructions.
+
+Note: The code for fine-tuning Faster R-CNN will be added soon.
 ## **Setup**
 Verify that Python is installed and the version is between 3.8 (inclusive) and 3.11 (exclusive).
 

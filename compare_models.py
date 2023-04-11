@@ -16,8 +16,8 @@ from Util import utility
 #         dst_file = os.path.join(test_images_dir, os.path.basename(img_file))
 #         shutil.copy2(img_file, dst_file)
 
-baseline_folder = "./runs/results/paper/new/detect/yolov8s-test"
-comparison_folder = "./runs/results/paper/new/detect/yolov8s_aug-test"
+baseline_folder = "./runs/results/paper/new/detect/yolov5s-test"
+comparison_folder = "./runs/results/paper/new/detect/yolov5s_aug-test"
 
 baseline_folder = os.path.join(baseline_folder, 'labels')
 comparison_folder = os.path.join(comparison_folder, 'labels')
