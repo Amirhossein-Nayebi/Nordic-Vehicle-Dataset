@@ -122,7 +122,7 @@ After the training is finished, you can validate the trained model with the test
 
     python val.py [--yolo_model YOLO_MODEL]
 
-Here for ```YOLO_MODEL``` provide the path to a trained network's weight file (```.pt```) located in the ```runs/train``` directory. The validation results are save in ```runs/val``` directory.
+Here for ```YOLO_MODEL``` provide the path to a trained network's weight file (```.pt```) located in the ```runs/train``` directory. The validation results are saved in ```runs/val``` directory.
 
 ## **Detect Cars**
 To detect cars in videos and images you can simply pass a file (video/image) or a directory path containing videos/images to ```detect.py``` script:
