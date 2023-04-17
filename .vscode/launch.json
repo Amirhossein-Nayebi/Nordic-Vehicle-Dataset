@@ -80,11 +80,11 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--yolo_model", "yolov8s",
+                "--yolo_model", "yolov5s",
                 "--aug",
-                "--batch", "16",
-                "--project", "runs/with_aug",
-                "--name", "yolov8s",
+                "--batch", "8",
+                "--project", "runs/debug",
+                "--name", "yolov5s",
             ]
         },
         {

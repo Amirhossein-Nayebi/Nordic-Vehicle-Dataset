@@ -61,6 +61,7 @@ def main(opt):
                 del params['iou_t']
                 del params['cls_pw']
                 del params['obj']
+                del params['fl_gamma']
             params.update({
                 'batch': batch_size,
                 'imgsz': 1920,

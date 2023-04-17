@@ -1,15 +1,18 @@
 {
     "cSpell.words": [
         "'s",
+        "annos",
         "Asjo",
         "Bjenberg",
         "CSRT",
         "CVAT",
         "FFD",
+        "finetune",
         "fliplr",
         "flipud",
         "GOTURN",
         "hinfo",
+        "KEYPOINT",
         "MEDIANFLOW",
         "MOSSE",
         "readkp",

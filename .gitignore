@@ -21,3 +21,5 @@ Results*
 runs*
 ReadMe.pdf
 .venv
+output
+coco_eval
