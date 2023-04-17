@@ -148,7 +148,7 @@ def main(opt):
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser(
-        description='This Python script estimated flight height. \
+        description='This Python script estimates flight height. \
             \nIt gets a directory containing both annotation and video files and creates flight height info file for each video. \
             \nIt also plots the estimated height vs frame number. \
             \nIt is useful to study variation of flight heigh.')
