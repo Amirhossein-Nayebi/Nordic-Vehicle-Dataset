@@ -16,7 +16,7 @@
 <img src='./sample-images/2022-12-23 Bjenberg 02_stabilized_6.png' alt="Sample 14" width="640" height="360">
 </center>
 
-You can find the NVD dataset here:
+You can find the NVD dataset and the models' weights here:
 https://nvd.ltu-ai.dev/
 
 This repository contains code for fine-tuning YOLOv5, YOLOv8 and Faster R-CNN on the NVD dataset. Below, you can find setup instructions.
