@@ -156,3 +156,6 @@ To fine-tune Faster R-CNN you can run ```finetune_faster_rcnn.py```:
 The results will be saved in the ```output``` directory.
 
 Please note that you should prepare the data as explained previously before running this script. 
+
+## **Citation**
+H. Mokayed, A. Nayebiastaneh, K. De, S. Sozos, O. Hagner, and B. Backe, “Nordic Vehicle Dataset (NVD): Performance of vehicle detectors using newly captured NVD from UAV in different snowy weather conditions.” arXiv, Apr. 27, 2023. doi: 10.48550/arXiv.2304.14466.
