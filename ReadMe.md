@@ -1,4 +1,15 @@
 # **Nordic Vehicle Dataset**
+
+This repository contains code for fine-tuning YOLOv5, YOLOv8, and Faster R-CNN on the NVD dataset.
+
+You can find the NVD dataset and the models' weights at the following link:
+
+https://nvd.ltu-ai.dev/
+
+Please refer to the setup instructions provided below.
+
+## **Sample Frames**
+
 <center>
 <img src='./sample-images/2022-12-02 Asjo 01_stabilized_1.png' alt="Sample 1" width="640" height="360">
 <img src='./sample-images/2022-12-02 Asjo 01_stabilized_2.png' alt="Sample 2" width="640" height="360">
@@ -16,12 +27,11 @@
 <img src='./sample-images/2022-12-23 Bjenberg 02_stabilized_6.png' alt="Sample 14" width="640" height="360">
 </center>
 
-You can find the NVD dataset and the models' weights here:
-https://nvd.ltu-ai.dev/
-
-This repository contains code for fine-tuning YOLOv5, YOLOv8 and Faster R-CNN on the NVD dataset. Below, you can find setup instructions.
-
 ## **Setup**
+Clone the repository from GitHub:
+
+    git clone 'https://github.com/Amirhossein-Nayebi/Nordic-Vehicle-Dataset'
+
 Verify that Python is installed and the version is between 3.8 (inclusive) and 3.11 (exclusive).
 
 On Windows:
@@ -34,7 +44,7 @@ On Ubuntu:
 
 This will display the version of Python installed on your system. If the version is less than 3.8 or equal to or greater than 3.11, you will need to install a compatible version.
 
-Extract the source code zip file to a directory (```source directory```). Create another directory (```videos directory```) and copy the video files and the accompanying annotation ```.xml``` files into it. Ensure that each annotation file has the same name as its corresponding video file.
+Create a directory (```videos directory```) and copy the video files and the accompanying annotation ```.xml``` files into it. Ensure that each annotation file has the same name as its corresponding video file. You can download NVD video and annotation files [here](https://nvd.ltu-ai.dev/).
 
 Navigate to the ```source directory``` by changing the current directory:
 
@@ -149,7 +159,7 @@ To detect cars in videos and images you can simply pass a file (video/image) or 
 As before ```YOLO_MODEL``` is the path to a trained network's weights file, ```FILE/DIR``` is a file path to an image or video or a directory path containing images and videos. ```CONF_THRES``` is the confidence threshold which is set to 0.25 by default. The detection results are saved in ```runs/detect``` directory.
 
 ## **Faster R-CNN**
-To fine-tune Faster R-CNN you can run ```finetune_faster_rcnn.py```:
+Faster R-CNN only works on Linux systems and has been tested on Ubuntu 18.04. Before fine-tuning Faster R-CNN, you need to uncomment the last lines in the ```requirements.txt``` file. To fine-tune Faster R-CNN you can run ```finetune_faster_rcnn.py```:
 
     python finetune_faster_rcnn.py
 
