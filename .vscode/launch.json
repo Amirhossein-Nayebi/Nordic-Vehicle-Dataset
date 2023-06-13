@@ -127,5 +127,31 @@
                 "--annotation_file", "../datasets/SmartPlane/Videos/2022-12-23 Bjenberg 02_stabilized.xml",
             ]
         },
+        {
+            "name": "Create Heatmaps",
+            "type": "python",
+            "request": "launch",
+            "program": "create_heatmaps.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--ann_dir", "",
+                "--image_dir", "",
+                "--heatmap_dir", "",
+            ]
+        },
+        {
+            "name": "View Heatmaps",
+            "type": "python",
+            "request": "launch",
+            "program": "view_heatmaps.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--ann_file", "",
+                "--image_dir", "",
+                "--heatmap_dir", "",
+            ]
+        },
     ]
 }
