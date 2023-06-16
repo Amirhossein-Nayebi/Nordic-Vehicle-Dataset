@@ -169,3 +169,11 @@ Please note that you should prepare the data as explained previously before runn
 
 ## **Citation**
 H. Mokayed, A. Nayebiastaneh, K. De, S. Sozos, O. Hagner, and B. Backe, “Nordic Vehicle Dataset (NVD): Performance of vehicle detectors using newly captured NVD from UAV in different snowy weather conditions.” arXiv, Apr. 27, 2023. doi: 10.48550/arXiv.2304.14466.
+
+## **License**
+The dataset provided in this project is made available under the Creative Commons Attribution-NonCommercial (CC-BY-NC) license. This means that you are free to use the dataset for scientific research purposes, subject to the following conditions:
+
+* You must provide appropriate attribution to the original creator(s) of the dataset.
+* You may not use the dataset for commercial purposes without obtaining explicit permission or a separate license from the dataset's owner.
+
+By accessing and using the dataset, you agree to comply with the terms and conditions of the CC-BY-NC license.
