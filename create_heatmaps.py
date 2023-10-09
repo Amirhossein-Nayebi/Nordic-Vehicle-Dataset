@@ -11,7 +11,7 @@ import xml.etree.ElementTree as et
 import glob
 import re 
 
-def create_annotations(annotationFile):
+def create_annotations(annotationFile, sigma_border_range):
     tree = et.parse(annotationFile)
     root = tree.getroot()
 
@@ -25,17 +25,17 @@ def create_annotations(annotationFile):
             frameNumber = int(box.attrib["frame"])
             if frameNumber in carsByFrames:
                 carsByFrames[frameNumber].append(
-                    CarAnnotation(box))
+                    CarAnnotation(box, sigma_border_range))
             else:
                 carsByFrames[frameNumber] = [
-                    CarAnnotation(box)
+                    CarAnnotation(box, sigma_border_range)
                 ]
                 
     return carsByFrames, width, height
 
 class CarAnnotation:
 
-    def __init__(self, box: et.Element):
+    def __init__(self, box: et.Element, sigma_border_range):
         if "rotation" in box.attrib:
             self.rotation = math.radians(float(box.attrib["rotation"]))
         else:
@@ -48,36 +48,52 @@ class CarAnnotation:
         width = br[0] - tl[0]
         height = br[1] - tl[1]
 
-        self.sigma_x = width/2.8
-        self.sigma_y = height/2.8
+        self.sigma_x = width / sigma_border_range
+        self.sigma_y = height / sigma_border_range
 
 def main(opt):
     
     # inputs
-    ann_dir = opt.ann_dir
-    image_dir = opt.image_dir
-    heatmap_dir = opt.heatmap_dir
+    source_dir = opt.source
+    dataset_dir = opt.data_dir
+    sigma_border_range = opt.sigma_border_range
+
+    new_image_dir = os.path.join(dataset_dir, 'images')
+    new_heatmap_dir = os.path.join(dataset_dir, 'heatmaps')
+    new_heatmap_image_dir = os.path.join(dataset_dir, 'heatmaps_png')
 
     # checks
-    if not os.path.isdir(image_dir):
-        sys.exit(f"Failed to find image directory '{image_dir}'!")
-    if not os.path.isdir(ann_dir):
-        sys.exit(f"Failed to find annotation directory '{ann_dir}'!")
-    if not os.path.isdir(heatmap_dir):
-        sys.exit(f"Failed to find heatmap directory for output. please create one at '{heatmap_dir}'")   
+    if not os.path.isdir(source_dir):
+        sys.exit(f"Failed to find source directory with annotations '{source_dir}'!")
+    if not os.path.isdir(dataset_dir):
+        sys.exit(f"Failed to find dataset directory '{dataset_dir}'!")
+    if not os.path.isdir(new_image_dir):
+        sys.exit(f"Failed to find image directory '{new_image_dir}' inside dataset directory '{dataset_dir}'!")
 
     # getting all annotation files
-    ann_dir_files = os.listdir(ann_dir)
-    ann_files = []
-    for ann_file in ann_dir_files:
-        if os.path.isfile(os.path.join(ann_dir, ann_file)) and os.path.splitext(ann_file)[1] == '.xml':
-            ann_files.append(ann_file)
-    if (len(ann_files) == 0):
+    source_dir_files = os.listdir(source_dir)
+    source_files = []
+    for source_file in source_dir_files:
+        if os.path.isfile(os.path.join(source_dir, source_file)) and os.path.splitext(source_file)[1] == '.xml':
+            source_files.append(source_file)
+    if (len(source_files) == 0):
         sys.exit(f"there are no .xml annotation files in annotation directory.")
 
-    #create dictionary of filenames (because there are sometimes different number of prepending zeroes in frame number)
+    # create heatmap directories
+    if not os.path.isdir(new_heatmap_dir):
+        try:
+            os.mkdir(new_heatmap_dir)
+        except Exception as e:
+            sys.exit(f"Failed to create heatmap .npy directory '{new_heatmap_dir} -- {e}")
+    if not os.path.isdir(new_heatmap_image_dir):
+        try:
+            os.mkdir(new_heatmap_image_dir)
+        except Exception as e:
+            sys.exit(f"Failed to create heatmap .png directory '{new_heatmap_image_dir} -- {e}")
+
+    # create dictionary of filenames (because there are sometimes different number of prepending zeroes in frame number)
     image_dict = {}
-    for filename in os.listdir(image_dir):
+    for filename in os.listdir(new_image_dir):
         number = filename.split("-")[-1].split(".")[0].split("e")[-1]
         number = str(int(number))
         start = "-".join(filename.split("-")[:-1])
@@ -85,20 +101,14 @@ def main(opt):
         value = f"{start}-{number}"
         image_dict[value] = filename
 
-
     # iterate over .xml annotation
-    for ann_file in tqdm(ann_files):
+    for source_file in tqdm(source_files):
         # get boxes per frame
-        carsByFrames, width, height = create_annotations(os.path.join(ann_dir, ann_file))
+        carsByFrames, width, height = create_annotations(os.path.join(source_dir, source_file), sigma_border_range)
 
         for frameNum, cars in tqdm(carsByFrames.items()):
             # get correct image
-            # old style
-            #frame_number =  "{:04d}".format(frameNum)
-            #ann_base_file_name = os.path.splitext(ann_file)[0]
-            #heatmap_name = fr"{ann_base_file_name}-frame{frame_number}.png"
-            # new style
-            ann_base_file_name = os.path.splitext(ann_file)[0]
+            ann_base_file_name = os.path.splitext(source_file)[0]
             key = f"{ann_base_file_name}-{frameNum}"
             heatmap_name = image_dict[key]
             
@@ -130,12 +140,18 @@ def main(opt):
                 # variation 2: get only the highest value of a pixel from all heatmaps 
                 # heatmap = np.maximum.reduce(car_heatmaps)
 
-                # normalize the heatmap to range between 0 and 255, round it and convert to 8-bit unsigned integer
-                heatmap = np.round((heatmap / np.max(heatmap)) * 255).astype(np.uint8)
-                # heatmap_colored = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+                # final normalization
+                heatmap /= np.max(heatmap)
 
+                # save .npy heatmap as float 32
+                heatmap = heatmap.astype(np.float32)
+                heatmap_raw_name = os.path.splitext(heatmap_name)[0] + ".npy"
+                np.save(fr"{new_heatmap_dir}\{heatmap_raw_name}",heatmap)
+
+                # normalize the heatmap to range between 0 and 255 convert to 8-bit unsigned integer
                 # save heatmap to the corresponding path
-                if not cv2.imwrite(fr"{heatmap_dir}\{heatmap_name}", heatmap):
+                heatmap_img = (heatmap* 255).astype(np.uint8)
+                if not cv2.imwrite(fr"{new_heatmap_image_dir}\{heatmap_name}", heatmap_img):
                     sys.exit(f"error saving heatmap {heatmap_name}")
             
 
@@ -143,18 +159,18 @@ def parse_opt(known=False):
     parser = argparse.ArgumentParser(
         description=
         'This python script creates heatmaps from images and annotation file')
-    parser.add_argument('--ann_dir',
+    parser.add_argument('--source',
                         type=str,
                         help='directory of all the .xml annotation files (files must have same name as images (without -frame0000))',
                         required=True)
-    parser.add_argument('--image_dir',
+    parser.add_argument('--data_dir',
                         type=str,
-                        help='directory containing all of the images',
+                        help='directory of created dataset by prepare_data.py',
                         required=True)
-    parser.add_argument('--heatmap_dir',
-                        type=str,
-                        help='output directory which will contain all of the heatmaps',
-                        required=True)
+    parser.add_argument('--sigma_border_range',
+                        type=float,
+                        help='defines the sigma value at the range of border of a car',
+                        default=3.25)
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
 def run(**kwargs):

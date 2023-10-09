@@ -53,10 +53,11 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--yolo_model",
-                "./runs/results/paper/new/train/without_aug/yolov8s/weights/best.pt",
-                "--name", "yolov8s",
-                "--project", "runs/val/paper/without_aug"
+                "--yolo_model", "",
+                "--project", "runs/val/yolov5n",
+                "--name", "val_test_006",
+                "--test_data", "",
+                "--batch", "32"
             ]
         },
         {
@@ -135,9 +136,9 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--ann_dir", "",
-                "--image_dir", "",
-                "--heatmap_dir", "",
+                "--source", "",
+                "--data_dir", "",
+                "--sigma_border_range", "",
             ]
         },
         {
@@ -149,8 +150,23 @@
             "justMyCode": true,
             "args": [
                 "--ann_file", "",
-                "--image_dir", "",
-                "--heatmap_dir", "",
+                "--data_dir", "",
+            ]
+        },
+        {
+            "name": "Create Random Sample",
+            "type": "python",
+            "request": "launch",
+            "program": "create_random_sample.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--in_data", "",
+                "--out_data", "",
+                "--smart_plane_path", "",
+                "--train", "",
+                "--val", "",
+                "--test", "",
             ]
         },
     ]

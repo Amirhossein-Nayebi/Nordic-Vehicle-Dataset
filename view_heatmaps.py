@@ -9,9 +9,10 @@ import argparse
 def main(opt):
     # inputs
     ann_file = opt.ann_file
-    image_dir = opt.image_dir
-    heatmap_dir = opt.heatmap_dir
-
+    dataset_dir = opt.data_dir
+    image_dir = os.path.join(dataset_dir, 'images')
+    heatmap_dir = os.path.join(dataset_dir, 'heatmaps_png')
+    
     # checks
     if not os.path.isfile(ann_file):
         sys.exit(f"Failed to find annotation file '{ann_file}'!")
@@ -20,7 +21,7 @@ def main(opt):
     if not os.path.isdir(image_dir):
         sys.exit(f"Failed to find image directory '{image_dir}'!")
     if not os.path.isdir(heatmap_dir):
-        sys.exit(f"Failed to find heatmap directory '{heatmap_dir}'!")   
+        sys.exit(f"Failed to find heatmap .png directory '{heatmap_dir}'!")   
 
     # getting all names of files from heatmap from selected annotation file
     heatmap_dir_files = os.listdir(heatmap_dir)
@@ -32,27 +33,33 @@ def main(opt):
             heatmap_files.append(heatmap_file)
 
     screen = screeninfo.get_monitors()[0]
-    screen_width = screen.width
-    screen_height = screen.height
-    image_width = screen_width // 2
-    image_height = screen_height // 2
+    canvas_width = int(screen.width *0.8)
+    canvas_height = int(screen.height *0.8)
+
+    border_size = 20
+
+    cell_width = (canvas_width - 3 * border_size) // 2
+    cell_height = (canvas_height - 3 * border_size) // 2
 
     for file in heatmap_files:
-
         original_image_path = fr"{image_dir}\{file}"
         heatmap_path = fr"{heatmap_dir}\{file}"
 
-        original_img = cv2.resize(cv2.imread(original_image_path), (image_width, image_height))
-        heatmap_img = cv2.resize(cv2.imread(heatmap_path), (image_width, image_height))
-        overlay_img = cv2.resize(cv2.addWeighted(original_img, 0.5, heatmap_img, 0.5, 0), (image_width, image_height))
+        original_img = cv2.resize(cv2.imread(original_image_path), (cell_width, cell_height))
+        heatmap_img = cv2.resize(cv2.imread(heatmap_path, cv2.IMREAD_GRAYSCALE), (cell_width, cell_height))
+        colormap_hot_img = cv2.applyColorMap(heatmap_img, cv2.COLORMAP_HOT)
+        colormap_jet_img = cv2.applyColorMap(heatmap_img, cv2.COLORMAP_JET)
+        overlay_hot_img = cv2.resize(cv2.addWeighted(original_img, 0.5, colormap_hot_img, 0.5, 0), (cell_width, cell_height))
+        overlay_jet_img = cv2.resize(cv2.addWeighted(original_img, 0.5, colormap_jet_img, 0.5, 0), (cell_width, cell_height))
 
-        canvas = 255 * np.ones((screen_height, screen_width, 3), dtype=np.uint8)
+        canvas = 255 * np.ones((canvas_height, canvas_width, 3), dtype=np.uint8)
 
-        canvas[:image_height, :image_width] = original_img  # Top-left
-        canvas[:image_height, image_width:] = heatmap_img  # Top-right
-        canvas[image_height:, image_width//2:image_width//2*3] = overlay_img  # Bottom
+        canvas[border_size:border_size + cell_height, border_size:border_size + cell_width] = original_img  # top-left
+        canvas[border_size:border_size + cell_height, 2*border_size + cell_width: 2*border_size + 2*cell_width] = colormap_jet_img# top-right
+        canvas[2*border_size + cell_height:2*border_size + 2*cell_height, border_size:border_size + cell_width] = overlay_jet_img # bottom-left
+        canvas[2*border_size + cell_height:2*border_size + 2*cell_height, 2*border_size + cell_width: 2*border_size + 2*cell_width] = overlay_hot_img  # bottom-right
 
-        cv2.imshow('Image Set', canvas)
+        cv2.imshow(f'Image, Heatmap and Overlay', canvas)
 
         key = cv2.waitKey(0) & 0xFF
         if key == ord('q'):
@@ -69,13 +76,9 @@ def parse_opt(known=False):
                         type=str,
                         help='path to .xml annotation file you want to view',
                         required=True)
-    parser.add_argument('--image_dir',
+    parser.add_argument('--data_dir',
                         type=str,
-                        help='directory containing all of the images',
-                        required=True)
-    parser.add_argument('--heatmap_dir',
-                        type=str,
-                        help='directory containing all of the heatmaps',
+                        help='directory of created dataset',
                         required=True)
     return parser.parse_known_args()[0] if known else parser.parse_args()
 

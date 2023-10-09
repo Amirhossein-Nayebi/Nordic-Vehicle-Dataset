@@ -8,7 +8,7 @@ import prepare_data
 
 
 def main(opt):
-    data_file = opt.test_data
+    data_file = opt.data_yaml_file
     if not os.path.isfile(data_file):
         sys.exit(
             f"'{data_file}' not found! Check the filename or run 'python {prepare_data.__name__}.py --videos_dir <path/to/video/files> --data_dir <path/to/data/>' to create a data file."
@@ -18,10 +18,10 @@ def main(opt):
 
     clearml.browser_login()
 
-    project = opt.project
+    project = os.path.normpath( opt.project)
     run_name = os.path.basename(
         opt.yolo_model) if opt.name is None else opt.name
-    speed_file = run_name + "_speed.txt"
+    speed_file = os.path.join(project, run_name, "speed.txt")
     imgsz = 1920
     data_split = 'test'  # train, val, test, speed or study
     verbose = True
@@ -30,6 +30,7 @@ def main(opt):
     save_conf = False  # save confidences in --save-txt labels
     save_json = False  # save a COCO-JSON results file
     single_cls = True
+    batch_size = opt.batch_size
 
     if "yolov5" in yolo_model_name.lower():
         res = yolov5.val.run(
@@ -45,7 +46,7 @@ def main(opt):
             save_json=save_json,  # save a COCO-JSON results file
             imgsz=imgsz,
             single_cls=single_cls,
-            #    batch_size=16,
+            batch_size=batch_size,
             data=data_file)
         t = res[3]
         shape = (3, imgsz, imgsz)
@@ -71,6 +72,7 @@ def main(opt):
             save_json=save_json,  # save a COCO-JSON results file
             imgsz=imgsz,
             single_cls=single_cls,
+            batch=batch_size
         )
 
 
@@ -111,11 +113,14 @@ def parse_opt(known=False):
                         type=str,
                         help='Task name. If omitted, yolo model name is used.',
                         default=None)
-    parser.add_argument(
-        '--test_data',
-        type=str,
-        help=f"Test yaml data file. Default: '{prepare_data.data_file}",
-        default=prepare_data.data_file)
+    parser.add_argument('--batch_size',
+                        type=int,
+                        help='Evaluation batch size. If you get out of memory error try to reduce the bach value. (default = 8)',
+                        default=8)
+    parser.add_argument('--data_yaml_file',
+                        type=str,
+                        help=f"Test yaml data file. Default: '{prepare_data.data_file}",
+                        default=prepare_data.data_file)
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
