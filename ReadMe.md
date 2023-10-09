@@ -167,5 +167,39 @@ The results will be saved in the ```output``` directory.
 
 Please note that you should prepare the data as explained previously before running this script. 
 
+# **Thesis Additions**
+## **Create Heatmaps**
+To create heatmaps for the dataset, after Creating dataset with ```prepare_data.py```.
+
+    python create_heatmaps.py [--source SOURCE_PATH] [--data_dir DATASET_PATH] [--sigma_border_range RANGE]
+
+Script will create two subdirectories in ```DATASET_PATH```, ```Heatmaps``` and ```Heatmaps_png```. ```Heatmaps``` is directory with heatmaps for training, where heamaps are of type ```float32``` and format ```.npy```. ```Heatmaps_png``` is a directory with heamaps for visualisation, where heatmaps are of type ```int8``` and format ```.png```.
+
+```SOURCE_PATH``` is the path to the raw dataset with its ```.xml``` annotations.
+
+```RANGE``` is the sigma range at the border of the car. Increasing its value will decrease the heatmaps radiu over cars, and lowering the value will increase it.
+
+## **View Heatmaps**
+To verify created heamaps with this script.
+
+    python view_heatmaps.py [--ann_file ANNOTATION_FILE_PATH] [--data_dir DATASET_PATH]
+
+```ANNOTATION_FILE_PATH``` is path to the ```.xml``` annotation file, which specifies from which video in dataset we want to see heatmaps.
+
+```DATASET_PATH``` is a directory to the dataset, created with ```prepare_data.py``` and ```create_heatmaps.py```
+
+## **Create Random Sample**
+To create random sample from dataset, which was created with ```prepare_data.py``` and ```create_heatmaps.py```
+
+    python create_random_sample.py [--in_data INPUT_DATASET] [--out_data SAMPLE_DATASET] [--smart_plane_path SMART_PLANE_PATH] [--train TRAIN_SAMPLE_SIZE] [--val VAL_SAMPLE_SIZE] [--test TEST_SAMPLE_SIZE]
+
+```INPUT_DATASET``` is dataset from which to create sample dataset.
+
+```SAMPLE_DATASET``` is path where sample dataset will be created.
+
+```SMART_PLANE_PATH``` is path to dataset configuration saved into ```smart_plane.yaml``` config file, which was created with ```prepare_data.py``` script. If not set, its default location should be at the root of this project.
+
+```TRAIN_SAMPLE_SIZE```, ```VAL_SAMPLE_SIZE``` and ```TEST_SAMPLE_SIZE``` specify the number of train/val/test images in sample dataset. The values can in range from 0 to number of images in original dataset.
+
 ## **Citation**
 H. Mokayed, A. Nayebiastaneh, K. De, S. Sozos, O. Hagner, and B. Backe, “Nordic Vehicle Dataset (NVD): Performance of vehicle detectors using newly captured NVD from UAV in different snowy weather conditions.” arXiv, Apr. 27, 2023. doi: 10.48550/arXiv.2304.14466.
