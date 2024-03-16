@@ -167,6 +167,12 @@ The results will be saved in the ```output``` directory.
 
 Please note that you should prepare the data as explained previously before running this script. 
 
+To detect cars in images you can simply pass an image file or a directory path containing images to ```detect_frcnn.py``` script:
+
+    python detect_frcnn.py [--model FRCNN_MODEL_WEIGHTS] [--source FILE/DIR] [--conf_thres CONF_THRES]
+
+```FRCNN_MODEL_WEIGHTS``` is the path to a trained network's weights file, ```FILE/DIR``` is a file path to an image or a directory path containing images. ```CONF_THRES``` is the confidence threshold which is set to 0.25 by default. The detection results are saved in ```runs/detect``` directory.
+
 ## **Citation**
 H. Mokayed, A. Nayebiastaneh, K. De, S. Sozos, O. Hagner, and B. Backe, “Nordic Vehicle Dataset (NVD): Performance of vehicle detectors using newly captured NVD from UAV in different snowy weather conditions.” arXiv, Apr. 27, 2023. doi: 10.48550/arXiv.2304.14466.
 

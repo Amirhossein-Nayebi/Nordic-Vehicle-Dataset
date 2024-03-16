@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Data Statistics",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "data_stats.py",
             "console": "integratedTerminal",
@@ -18,7 +18,7 @@
         },
         {
             "name": "Extract Frames",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./Util/extract_frames.py",
             "console": "integratedTerminal",
@@ -36,7 +36,7 @@
         },
         {
             "name": "Estimate Flight Height",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "estimate_flight_height.py",
             "console": "integratedTerminal",
@@ -47,7 +47,7 @@
         },
         {
             "name": "Validate",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "val.py",
             "console": "integratedTerminal",
@@ -61,7 +61,7 @@
         },
         {
             "name": "Prepare Data",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "prepare_data.py",
             "console": "integratedTerminal",
@@ -74,7 +74,7 @@
         },
         {
             "name": "Train",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "train.py",
             "console": "integratedTerminal",
@@ -89,7 +89,7 @@
         },
         {
             "name": "Detect",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "detect.py",
             "console": "integratedTerminal",
@@ -105,7 +105,7 @@
         },
         {
             "name": "View Annotations",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "view_annotations.py",
             "console": "integratedTerminal",
@@ -116,7 +116,7 @@
         },
         {
             "name": "View Data",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "view_data.py",
             "console": "integratedTerminal",
@@ -125,6 +125,22 @@
                 "--type", "test",
                 "--data_file", "./smart_plane.yaml",
                 "--annotation_file", "../datasets/SmartPlane/Videos/2022-12-23 Bjenberg 02_stabilized.xml",
+            ]
+        },
+        {
+            "name": "Detect F-RCNN",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "detect_frcnn.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--model",
+                "../weights/faster_rcnn/model_final.pth",
+                "--source",
+                "../Images",
+                "--name",
+                "debug",
             ]
         },
     ]

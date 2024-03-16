@@ -9,6 +9,7 @@ opencv-python
 ##################################################
 # Uncomment the following lines for Faster R-CNN #
 ##################################################
+# pillow==9.5.0
 # numpy==1.23
 # torch==1.8.2 
 # torchvision==0.9.2 
